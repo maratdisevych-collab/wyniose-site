@@ -1,0 +1,356 @@
+{%- if full -%}
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{%- endif %}
+<title>{{ title }}</title>
+{%- if proto %}
+<meta name="claude:viewport-fit-sides" content="cover">
+{%- endif %}
+<meta name="description" content="{{ t.desc }}">
+{%- if full %}
+<meta name="theme-color" content="#F0F2EA">
+{%- if icon %}
+<link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
+{%- endif %}
+{%- for code, href in alt %}
+<link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
+{%- endfor %}
+{%- if canonical %}
+<link rel="canonical" href="{{ canonical }}">
+{%- endif %}
+{%- if og_image %}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wyniosę">
+<meta property="og:title" content="{{ t.og_title }}">
+<meta property="og:description" content="{{ t.desc }}">
+<meta property="og:image" content="{{ og_image }}">
+<meta property="og:locale" content="{{ t.locale }}">
+<meta name="twitter:card" content="summary_large_image">
+{%- endif %}
+{%- endif %}
+{%- if ldjson %}
+<script type="application/ld+json">{{ ldjson }}</script>
+{%- endif %}
+{%- if gfonts %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+{%- endif %}
+<link rel="stylesheet" href="{{ fonts_url }}">
+{%- if css_href %}
+<link rel="stylesheet" href="{{ css_href }}">
+{%- else %}
+<style>
+{{ css }}
+</style>
+{%- endif %}
+<script>document.documentElement.classList.add('js')</script>
+{%- if full %}
+</head>
+<body>
+{%- endif %}
+<div class="site{% if cyr %} cyr{% endif %}" lang="{{ lang }}">
+{%- if proto %}
+<div class="proto" role="note"><div class="w">
+  <span>{{ t.proto_note }}</span>
+  <button type="button" id="review" aria-pressed="false">{{ t.review_btn }}</button>
+</div></div>
+{%- endif %}
+
+<header class="top" id="top"><div class="w">
+  <a class="logo" href="#start" aria-label="Wyniosę">WYNIOSĘ</a>
+  <nav aria-label="{{ t.nav_label }}"><ul>
+    <li><a href="#uslugi">{{ t.nav_services }}</a></li><li><a href="#droga">{{ t.nav_how }}</a></li><li><a href="#wycena">{{ t.nav_quote }}</a></li><li><a href="#o-nas">{{ t.nav_about }}</a></li><li><a href="#ekologia">{{ t.nav_eco }}</a></li>
+  </ul></nav>
+  <div class="langs-nav" aria-label="{{ t.lang_label }}">
+    {%- for code, label, href, name in langs %}
+    <a href="{{ href }}" hreflang="{{ code }}" lang="{{ code }}" title="{{ name }}"{% if code == lang %} aria-current="page"{% endif %}>{{ label }}</a>
+    {%- endfor %}
+  </div>
+  <a class="btn sm hdr-cta" href="#wycena">{{ t.cta_photo }}</a>
+</div></header>
+
+<main id="start">
+<section class="hero" aria-labelledby="h1"><div class="w">
+  <div>
+    <p class="eyebrow"><span class="plate">IV</span>{{ t.eyebrow }}</p>
+    <p class="hook" id="hook"><span class="line">{{ t.q1 }}<span class="k">{{ t.hook_word }}<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M2 24 C 20 19, 38 27, 55 21 S 86 18, 98 22"/></svg></span> {{ t.hook[0] }}{{ t.q2 }}</span></p>
+    <h1 id="h1">{{ t.h1a }} <span class="g">{{ t.h1b }}</span></h1>
+    <p class="lead">{{ t.lead }}</p>
+    {%- if t.gloss %}
+    <p class="gloss">{{ t.gloss }}</p>
+    {%- endif %}
+    <div class="ctas">
+      <a class="btn" href="#wycena"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg><span>{{ t.cta_photo }}<small>{{ t.cta_photo_sub }}</small></span></a>
+      <a class="btn white js-call" href="{{ c.tel or '#kontakt' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg><span>{{ t.cta_call }}<small class="num js-phone">{{ c.phone or '+48 ··· ··· ···' }}</small></span></a>
+    </div>
+    <ul class="facts">
+      {%- for f in t.facts %}<li>{{ f }}</li>{% endfor %}
+    </ul>
+  </div>
+  <figure class="ill" id="ill">
+    <svg viewBox="0 0 560 600" role="img" aria-labelledby="ill-t">
+      <title id="ill-t">{{ t.ill_title }}</title>
+      <defs>
+        <pattern id="tz" width="44" height="44" patternUnits="userSpaceOnUse"><rect width="44" height="44" fill="#DCD3C2"/><circle cx="6" cy="8" r="1.7" fill="#8E8576"/><circle cx="23" cy="5" r="1.2" fill="#A35F44"/><circle cx="34" cy="18" r="2.2" fill="#F6F1E6"/><circle cx="12" cy="26" r="1.4" fill="#5D6B62"/><circle cx="38" cy="36" r="1.5" fill="#8E8576"/><circle cx="21" cy="37" r="1.1" fill="#2E3A35"/><circle cx="4" cy="40" r="1.9" fill="#F6F1E6"/><circle cx="29" cy="28" r="1" fill="#A35F44"/><circle cx="16" cy="15" r=".9" fill="#2E3A35"/></pattern>
+        <pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#FFD02A"/><rect width="6" height="12" fill="#111A16"/></pattern>
+      </defs>
+      <rect width="560" height="600" fill="#F0F2EA"/>
+      <rect y="356" width="560" height="176" fill="#226B4C"/>
+      <rect y="352" width="560" height="5" fill="#111A16"/>
+      <rect y="532" width="560" height="68" fill="url(#tz)"/>
+      <rect y="530" width="560" height="4" fill="#111A16" opacity=".45"/>
+      <rect x="436" y="586" width="124" height="14" fill="url(#hatch)"/>
+      <g transform="translate(62 112)"><rect width="100" height="78" rx="10" fill="#1E4FAE"/><rect x="5" y="5" width="90" height="68" rx="7" fill="none" stroke="#fff" stroke-width="3"/><text class="logo-t" x="50" y="48" text-anchor="middle" font-weight="900" font-size="44" fill="#fff">IV</text><text x="50" y="65" text-anchor="middle" font-weight="700" font-size="10" letter-spacing="2" fill="#fff" style="font-family:var(--body)">{{ t.ill_plate }}</text></g>
+      <rect x="192" y="72" width="236" height="460" fill="#2E2219"/>
+      <rect x="206" y="86" width="208" height="446" fill="#93603A"/>
+      <rect x="228" y="112" width="164" height="168" fill="none" stroke="#6E4527" stroke-width="5"/>
+      <rect x="228" y="306" width="164" height="196" fill="none" stroke="#6E4527" stroke-width="5"/>
+      <rect x="206" y="86" width="10" height="446" fill="#000" opacity=".12"/>
+      <circle cx="310" cy="132" r="5" fill="#2E2219"/>
+      <ellipse cx="310" cy="178" rx="32" ry="22" fill="#B98B3A"/><ellipse cx="310" cy="178" rx="26" ry="17" fill="none" stroke="#7B5A1F" stroke-width="1.5"/>
+      <text class="logo-t" x="310" y="187" text-anchor="middle" font-weight="900" font-size="26" fill="#2B1F07">12</text>
+      <rect x="378" y="298" width="12" height="46" rx="5" fill="#E5C47B"/><rect x="356" y="305" width="34" height="9" rx="4.5" fill="#E5C47B"/>
+      <rect x="448" y="262" width="24" height="34" rx="4" fill="#E3E8DC" stroke="#9AA59E"/><rect x="455" y="270" width="10" height="18" rx="2" fill="#fff" stroke="#9AA59E"/>
+      <rect x="222" y="538" width="176" height="26" rx="4" fill="#4E3B2E"/><path d="M234 551 H386" stroke="#6E5442" stroke-width="3" stroke-dasharray="8 6"/>
+      <g><rect x="466" y="318" width="34" height="214" rx="17" fill="#C2412B"/><rect x="466" y="354" width="34" height="14" fill="#1E4FAE"/><rect x="466" y="414" width="34" height="14" fill="#FFD02A"/><rect x="466" y="474" width="34" height="14" fill="#1E4FAE"/><ellipse cx="483" cy="322" rx="17" ry="7" fill="#8F2B1D"/><ellipse cx="483" cy="322" rx="7" ry="3" fill="#5E1C12"/></g>
+      <ellipse cx="112" cy="535" rx="88" ry="6" fill="#000" opacity=".18"/>
+      <rect x="34" y="420" width="156" height="112" fill="#C29A63"/><rect x="34" y="420" width="12" height="112" fill="#000" opacity=".08"/><rect x="104" y="420" width="16" height="112" fill="#E3C796" opacity=".85"/>
+      <text x="112" y="500" text-anchor="middle" font-weight="700" font-size="{{ t.ill_box1_fs }}" fill="#2B1F07" transform="rotate(-3 112 500)">{{ t.ill_box1 }}</text>
+      <rect x="52" y="330" width="124" height="92" fill="#CFA46C"/><rect x="52" y="330" width="10" height="92" fill="#000" opacity=".08"/><rect x="106" y="330" width="14" height="92" fill="#E8D3A8" opacity=".9"/>
+      <text x="114" y="{{ 378 + (t.ill_box2_fs * 0.4)|round(1) }}" text-anchor="middle" font-weight="700" font-size="{{ t.ill_box2_fs }}" fill="#2B1F07" transform="rotate(-4 114 382)">{{ t.ill_box2 }}</text>
+      <path id="strike" pathLength="100" d="M66 378 C 92 371, 120 386, 162 370" fill="none" stroke="#E23A2E" stroke-width="5.5" stroke-linecap="round"/>
+    </svg>
+    <figcaption>{{ t.ill_caption }} <a href="#droga">{{ t.ill_link }}</a></figcaption>
+  </figure>
+</div></section>
+
+<section class="steps" aria-labelledby="h-steps"><div class="w">
+  <h2 id="h-steps" class="sr">{{ t.steps_h }}</h2>
+  <ol>
+    {%- for s in t.steps %}
+    <li><span class="n" aria-hidden="true">{{ loop.index }}</span><div><b>{{ s[0] }}</b><span>{{ s[1] }}</span></div></li>
+    {%- endfor %}
+  </ol>
+</div></section>
+
+<section class="svc" id="uslugi" aria-labelledby="h-uslugi"><div class="w">
+  <h2 id="h-uslugi">{{ t.svc_h }}</h2>
+  <p class="lead">{{ t.svc_lead }}</p>
+  <ul class="doors">
+    {%- for s in t.svc %}
+    <li class="door"><span class="oval" aria-hidden="true">{{ loop.index }}</span><div><h3>{{ s[0] }}</h3><p>{{ s[1] }}</p></div></li>
+    {%- endfor %}
+  </ul>
+  <p class="fine">{{ t.svc_fine }}</p>
+</div></section>
+
+<section class="droga" id="droga" aria-labelledby="h-droga">
+  <div class="w intro">
+    <p class="eyebrow"><span class="plate">IV→P</span>{{ t.dr_eyebrow }}</p>
+    <h2 id="h-droga">{{ t.dr_h }}</h2>
+    <p class="lead">{{ t.dr_lead }}</p>
+  </div>
+  <div class="track"><div class="stage">
+    <div class="view">
+      {{ scene }}
+    </div>
+    <ol class="phases" id="phases">
+      {%- for ph in t.phases %}
+      <li class="phase{% if loop.first %} on{% endif %}"><span class="plate{% if loop.index > 5 %} alt{% endif %}">{{ ph[0] }}</span><h3>{{ ph[1] }}</h3><p{% if ph[3] %} data-review="{{ ph[3] }}"{% endif %}>{{ ph[2] }}</p>{% if loop.last %}<a class="btn sm" href="#wycena">{{ t.dr_cta }}</a>{% endif %}</li>
+      {%- endfor %}
+    </ol>
+    <ol class="rail" aria-label="{{ t.rail_label }}">{% for ph in t.phases %}<li{% if loop.first %} class="on"{% endif %}><button type="button" data-i="{{ loop.index0 }}" aria-label="{{ ph[0] }}: {{ ph[1] }}">{{ ph[0] }}</button></li>{% endfor %}</ol>
+    <p class="hint">{{ t.hint }}</p>
+    <div class="player" hidden><button type="button" aria-label="{{ t.player.play }}"></button><input type="range" min="0" max="1000" value="0" aria-label="{{ t.player.scrub }}"></div>
+  </div></div>
+</section>
+
+<section class="order" id="wycena" aria-labelledby="h-wycena"><div class="w">
+  <p class="eyebrow"><span class="plate">✓</span>{{ t.or_eyebrow }}</p>
+  <h2 id="h-wycena">{{ t.or_h }}</h2>
+  <p class="lead">{{ t.or_lead }}</p>
+  <div class="card">
+    <div class="card-h"><b>{{ t.card_h }}</b><span>{{ t.card_sub }}</span></div>
+    <form class="fields" id="karta" novalidate>
+      <fieldset class="chips"><legend class="lbl">{{ t.lbl_obj }}</legend>
+        {%- for o in t.obj %}
+        <input type="radio" name="obj" id="o{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} checked{% endif %}{% if o|length > 2 %} {{ o[2] }}{% endif %}><label for="o{{ loop.index }}">{{ o[0] }}</label>
+        {%- endfor %}
+      </fieldset>
+      <div>
+        <label class="lbl" for="k-co">{{ t.lbl_items }}</label>
+        <textarea class="txt" id="k-co" placeholder="{{ t.ph_items }}"></textarea>
+        <div class="quick" aria-label="{{ t.quick_label }}">
+          {%- for q in t.quick %}<button type="button" data-add="{{ q }}">+ {{ q }}</button>{% endfor %}
+        </div>
+      </div>
+      <div>
+        <label class="lbl" for="k-area">{{ t.lbl_area }}</label>
+        <input class="txt" type="text" id="k-area" list="dz" placeholder="{{ t.ph_area }}" autocomplete="off">
+        <datalist id="dz">{% for d in districts %}<option value="{{ d }}">{% endfor %}</datalist>
+      </div>
+      <fieldset class="chips floors"><legend class="lbl">{{ t.lbl_floor }}</legend>
+        {%- for f in t.floors %}
+        <input type="radio" name="fl" id="f{{ loop.index0 }}" value="{{ f[1] }}"{% if loop.index0 >= 3 %} data-high{% endif %}><label for="f{{ loop.index0 }}" aria-label="{{ f[2] }}">{{ f[0] }}</label>
+        {%- endfor %}
+      </fieldset>
+      <div class="two">
+        <fieldset class="chips"><legend class="lbl">{{ t.lbl_lift }}</legend>
+          {%- for o in t.lift %}
+          <input type="radio" name="lift" id="l{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} data-none{% endif %}><label for="l{{ loop.index }}">{{ o[0] }}</label>
+          {%- endfor %}
+        </fieldset>
+        <fieldset class="chips"><legend class="lbl">{{ t.lbl_dem }}</legend>
+          {%- for o in t.yesnox %}
+          <input type="radio" name="dem" id="d{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} data-yes{% endif %}><label for="d{{ loop.index }}">{{ o[0] }}</label>
+          {%- endfor %}
+        </fieldset>
+      </div>
+      <div class="two">
+        <fieldset class="chips"><legend class="lbl">{{ t.lbl_when }}</legend>
+          {%- for o in t.whens %}
+          <input type="radio" name="kiedy" id="t{{ loop.index }}" value="{{ o[1] }}" data-when="{{ o[2] }}"{% if o|length > 3 %} data-on="{{ o[3] }}" data-any="{{ o[4] }}"{% endif %}><label for="t{{ loop.index }}">{{ o[0] }}</label>
+          {%- endfor %}
+          <input class="txt" type="date" id="k-date" hidden aria-label="{{ t.date_label }}">
+        </fieldset>
+        <fieldset class="chips"><legend class="lbl">{{ t.lbl_clean }}</legend>
+          {%- for o in t.yesno %}
+          <input type="radio" name="clean" id="c{{ loop.index }}" value="{{ o[1] }}"><label for="c{{ loop.index }}">{{ o[0] }}</label>
+          {%- endfor %}
+        </fieldset>
+      </div>
+    </form>
+    <div class="preview" aria-live="polite">
+      <div class="note">
+        <p class="note-h">{{ t.note_prefix }} <span class="k">{{ t.someday }}<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path id="kpath" pathLength="100" d="M2 24 C 20 19, 38 27, 55 21 S 86 18, 98 22" style="stroke-dasharray:100;stroke-dashoffset:100"/></svg></span> <span class="when" id="when"></span></p>
+        <ul id="items"></ul>
+        <p class="stamp" id="stamp" aria-hidden="true">Wyniosę.</p>
+      </div>
+      <p class="tip" id="tip"></p>
+      <p class="msglbl">{{ t.msg_label }}</p>
+      <p class="bubble" id="msg"></p>
+      <div class="acts">
+        <a class="btn" id="send" href="#wycena" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg><span>{{ t.send }}<small>{{ t.send_sub }}</small></span></a>
+        <button type="button" class="btn white sm" id="copy">{{ t.copy_btn }}</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <p class="call-line">{{ t.call_line }} <a class="js-call num js-phone" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a></p>
+      <div class="photos"><b>{{ t.photos_h }}</b><ul>{% for p in t.photos %}<li>{{ p }}</li>{% endfor %}</ul></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="about" id="o-nas" aria-labelledby="h-onas"><div class="w">
+  <div>
+    <p class="eyebrow">{{ t.ab_eyebrow }}</p>
+    <h2 id="h-onas">{{ t.ab_h }}</h2>
+    <p class="lead">{{ t.ab_lead }}</p>
+    <p class="small-note">{{ t.ab_langs }}</p>
+    <ul class="langs">
+      <li><b>PL</b>polski</li><li><b>UA</b>українська</li><li><b>RU</b>русский</li><li><b>EN</b>English</li>
+    </ul>
+    <p class="small-note">{{ t.ab_langs_note }}</p>
+  </div>
+  <figure class="bus">
+    <svg viewBox="0 0 680 320" role="img" aria-labelledby="bus-t">
+      <title id="bus-t">{{ t.bus_title }}</title>
+      <defs><pattern id="hatch2" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#FFD02A"/><rect width="6" height="12" fill="#111A16"/></pattern></defs>
+      <ellipse cx="340" cy="300" rx="300" ry="10" fill="#111A16" opacity=".16"/>
+      <path d="M40 70 Q40 46 64 46 H486 Q528 46 552 76 L620 156 Q636 172 636 194 V262 Q636 270 628 270 H48 Q40 270 40 262 Z" fill="#226B4C"/>
+      <path d="M496 64 H532 Q548 66 560 82 L604 144 H496 Z" fill="#17302A"/>
+      <path d="M502 70 H520 L508 138 H502 Z" fill="#fff" opacity=".12"/>
+      <rect x="486" y="50" width="3" height="214" fill="#174A35"/>
+      <rect x="276" y="56" width="3" height="158" fill="#174A35"/>
+      <rect x="40" y="214" width="596" height="26" fill="#FFD02A"/>
+      <rect x="40" y="214" width="110" height="26" fill="url(#hatch2)"/>
+      <text x="66" y="148" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="900" font-size="104" fill="#fff">WYNIOSĘ</text>
+      <text x="70" y="190" font-family="Rethink Sans, Onest, Arial, sans-serif" font-weight="700" font-size="17" letter-spacing="3" fill="#CFE3D8">OPRÓŻNIANIE · WYWÓZ · WROCŁAW</text>
+      <text x="300" y="233" font-family="Rethink Sans, Onest, Arial, sans-serif" font-weight="700" font-size="16" fill="#1C1604">WhatsApp: <tspan class="js-phone">{{ c.phone or '+48 ··· ··· ···' }}</tspan></text>
+      <rect x="564" y="94" width="12" height="28" rx="3" fill="#111A16"/>
+      <rect x="620" y="194" width="14" height="16" rx="3" fill="#FFF1C2"/>
+      <rect x="618" y="246" width="22" height="20" rx="4" fill="#111A16"/>
+      <circle cx="160" cy="270" r="45" fill="#F0F2EA"/><circle cx="160" cy="270" r="36" fill="#111A16"/><circle cx="160" cy="270" r="15" fill="#9AA59E"/><circle cx="160" cy="270" r="5" fill="#111A16"/>
+      <circle cx="530" cy="270" r="45" fill="#F0F2EA"/><circle cx="530" cy="270" r="36" fill="#111A16"/><circle cx="530" cy="270" r="15" fill="#9AA59E"/><circle cx="530" cy="270" r="5" fill="#111A16"/>
+    </svg>
+    <figcaption>{{ t.bus_caption }}</figcaption>
+  </figure>
+  <ul class="std">
+    {%- for s in t.std %}
+    <li{% if s[2] %} data-review="{{ s[2] }}"{% endif %}><b>{{ s[0] }}</b><span>{{ s[1] }}</span></li>
+    {%- endfor %}
+  </ul>
+</div></section>
+
+<section class="eco" id="ekologia" aria-labelledby="h-eko"><div class="w">
+  <p class="eyebrow">{{ t.eco_eyebrow }}</p>
+  <h2 id="h-eko">{{ t.eco_h }}</h2>
+  <p class="lead">{{ t.eco_lead }}</p>
+  <ol class="flow">
+    <li{% if t.eco[0][2] %} data-review="{{ t.eco[0][2] }}"{% endif %}><svg viewBox="0 0 84 60" aria-hidden="true"><g stroke="#111A16" stroke-width="2.5" stroke-linejoin="round"><path d="M8 22h40v32H8z" fill="#C29A63"/><path d="M8 22h40v6H8z" fill="#D2AE78"/><path d="M24 22h8v32h-8z" fill="#E8D3A8"/><path d="M56 38h20M68 30l8 8-8 8" fill="none"/></g></svg><h3>{{ t.eco[0][0] }}</h3><p>{{ t.eco[0][1] }}</p></li>
+    <li{% if t.eco[1][2] %} data-review="{{ t.eco[1][2] }}"{% endif %}><svg viewBox="0 0 84 60" aria-hidden="true"><g stroke="#111A16" stroke-width="2.5" stroke-linejoin="round"><path d="M6 20h20l-2 34H8z" fill="#226B4C"/><path d="M32 20h20l-2 34H34z" fill="#1E4FAE"/><path d="M58 20h20l-2 34H60z" fill="#C2412B"/><path d="M4 16h24M30 16h24M56 16h24"/></g></svg><h3>{{ t.eco[1][0] }}</h3><p>{{ t.eco[1][1] }}</p></li>
+    <li{% if t.eco[2][2] %} data-review="{{ t.eco[2][2] }}"{% endif %}><svg viewBox="0 0 84 60" aria-hidden="true"><g stroke="#111A16" stroke-width="2.5" stroke-linejoin="round"><path d="M10 26h64l-6 28H16z" fill="#FFD02A"/><path d="M42 4v16M34 13l8 8 8-8" fill="none"/></g><text x="42" y="46" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="900" font-size="15" fill="#111A16">PSZOK</text></svg><h3>{{ t.eco[2][0] }}</h3><p>{{ t.eco[2][1] }}</p></li>
+  </ol>
+  <div class="fact"><span class="big">{{ t.fact_big }}</span><p>{{ t.fact_text }} <a href="https://www.wroclaw.pl/zielony-wroclaw/wroclawskie-gabaryty-w-liczbach-jak-dziala-system-odbioru-odpadow-wielkogabarytowych" target="_blank" rel="noopener">{{ t.fact_src }}</a></p></div>
+</div></section>
+
+<section class="firms" id="dla-firm" aria-labelledby="h-firmy"><div class="w">
+  <div>
+    <p class="eyebrow">{{ t.f_eyebrow }}</p>
+    <h2 id="h-firmy">{{ t.f_h }}</h2>
+    <p class="lead"{% if t.f_lead_review %} data-review="{{ t.f_lead_review }}"{% endif %}>{{ t.f_lead }}</p>
+  </div>
+  <div>
+    <ul class="tags">{% for g in t.f_tags %}<li>{{ g }}</li>{% endfor %}</ul>
+    <a class="btn" href="#wycena">{{ t.f_btn }}</a>
+  </div>
+</div></section>
+
+<section class="faq" id="faq" aria-labelledby="h-faq"><div class="w">
+  <div><p class="eyebrow">{{ t.faq_eyebrow }}</p><h2 id="h-faq">{{ t.faq_h }}</h2></div>
+  <div>
+    {%- for q in t.faq %}
+    <details><summary>{{ q[0] }}</summary><p{% if q[2] %} data-review="{{ q[2] }}"{% endif %}>{{ q[1] }}</p></details>
+    {%- endfor %}
+  </div>
+</div></section>
+
+<section class="final" aria-labelledby="h-final"><div class="w">
+  <div><h2 id="h-final">{{ t.fin_h }}</h2><p>{{ t.fin_p }}</p></div>
+  <div class="ctas"><a class="btn dark" href="#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
+</div></section>
+</main>
+
+<footer id="kontakt"><div class="w">
+  <div><b>Wyniosę</b><p>{{ t.ft_about }}</p></div>
+  <div><b>{{ t.ft_contact }}</b><p>{{ t.ft_phone }} <a class="num js-phone js-call" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a>{% if not c.phone %} <span class="ph ph-phone">{{ t.ph_fill }}</span>{% endif %}</p><p class="js-phone2-row"{% if not c.phone2 %} hidden{% endif %}>{{ t.ft_phone2 }} <a class="num js-phone2" href="{{ c.tel2 or '#kontakt' }}">{{ c.phone2 }}</a></p><p>{{ t.ft_email }} <span class="js-email">{% if c.email %}<a href="mailto:{{ c.email }}">{{ c.email }}</a>{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p></div>
+  <div><b>{{ t.ft_company }}</b><p>{{ t.ft_company_data }} <span class="js-company">{% if c.company_line %}{{ c.company_line }}{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p><p>{% if c.privacy %}<span class="js-privacy"><a href="{{ c.privacy }}">{{ t.js.privacyLink }}</a></span>{% else %}{{ t.ft_privacy }} <span class="js-privacy"><span class="ph">{{ t.ph_prep }}</span></span>{% endif %}</p></div>
+  <div class="ft-bottom"><button type="button" class="linklike" id="consent-open" hidden>{{ t.cookie_settings }}</button></div>
+</div></footer>
+
+<div class="consent" id="consent" role="region" aria-labelledby="consent-t" hidden>
+  <p class="consent-t" id="consent-t">{{ t.consent_title }}</p>
+  <p class="consent-p">{{ t.consent_text }} <a href="{{ c.privacy or '#kontakt' }}">{{ t.consent_more }}</a></p>
+  <div class="consent-b"><button type="button" class="btn sm" id="consent-yes">{{ t.consent_yes }}</button><button type="button" class="btn sm white" id="consent-no">{{ t.consent_no }}</button></div>
+</div>
+<div class="dock"><a class="btn" href="#wycena">{{ t.dock_photo }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.dock_call }}</a></div>
+</div>
+{%- if config_inline is not none %}
+<script>window.SITE = {{ config_inline }};</script>
+{%- else %}
+<script src="{{ root }}config.js"></script>
+{%- endif %}
+<script>window.L = {{ jsl }};</script>
+{%- if js_href %}
+<script src="{{ js_href }}"></script>
+{%- else %}
+<script>
+{{ js }}
+</script>
+{%- endif %}
+{%- if full %}
+</body>
+</html>
+{%- endif %}

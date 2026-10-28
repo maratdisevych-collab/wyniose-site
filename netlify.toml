@@ -1,0 +1,5 @@
+# The site is built and tested before every push (scripts/release.sh), so Netlify only publishes the ready folder.
+# Security headers live in site/_headers, redirects in site/_redirects.
+[build]
+  publish = "site"
+  command = ""
