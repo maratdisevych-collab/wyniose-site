@@ -1,0 +1,12 @@
+<header class="top" id="top"><div class="w">
+  <a class="logo" href="{{ logo_href or '#start' }}" aria-label="Wyniosę">WYNIOSĘ</a>
+  <nav aria-label="{{ t.nav_label }}"><ul>
+    <li><a href="{{ home }}#uslugi">{{ t.nav_services }}</a></li><li><a href="{{ home }}#droga">{{ t.nav_how }}</a></li><li><a href="{{ home }}#wycena">{{ t.nav_quote }}</a></li><li><a href="{{ home }}#o-nas">{{ t.nav_about }}</a></li><li><a href="{{ home }}#ekologia">{{ t.nav_eco }}</a></li>
+  </ul></nav>
+  <div class="langs-nav" aria-label="{{ t.lang_label }}">
+    {%- for code, label, href, name in langs %}
+    <a href="{{ href }}" hreflang="{{ code }}" lang="{{ code }}" title="{{ name }}"{% if code == lang %} aria-current="page"{% endif %}>{{ label }}</a>
+    {%- endfor %}
+  </div>
+  <a class="btn sm hdr-cta" href="{{ home }}#wycena">{{ t.cta_photo }}</a>
+</div></header>

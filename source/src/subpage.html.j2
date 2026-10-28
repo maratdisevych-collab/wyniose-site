@@ -1,0 +1,80 @@
+{% include "_head.html.j2" %}
+</head>
+<body>
+<div class="site" lang="{{ lang }}">
+{% include "_top.html.j2" %}
+
+<main id="start" class="sub">
+<section class="sub-hero" aria-labelledby="h1"><div class="w">
+  <nav class="crumbs" aria-label="{{ t.crumbs_label }}"><ol><li><a href="{{ root }}">Wyniosę</a></li><li><span aria-current="page">{{ p.crumb }}</span></li></ol></nav>
+  <p class="eyebrow">{% if p.plate %}<span class="plate">{{ p.plate }}</span>{% endif %}{{ p.eyebrow }}</p>
+  <h1 id="h1">{{ p.h1a }} <span class="g">{{ p.h1b }}</span></h1>
+  <p class="lead">{{ p.lead }}</p>
+  <div class="ctas">
+    <a class="btn" href="{{ home }}#wycena"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg><span>{{ t.cta_photo }}<small>{{ t.cta_photo_sub }}</small></span></a>
+    <a class="btn white js-call" href="{{ c.tel or '#kontakt' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg><span>{{ t.cta_call }}<small class="num js-phone">{{ c.phone or '+48 ··· ··· ···' }}</small></span></a>
+  </div>
+  {%- if p.facts %}
+  <ul class="facts">
+    {%- for f in p.facts %}<li>{{ f }}</li>{% endfor %}
+  </ul>
+  {%- endif %}
+</div></section>
+
+<div class="sub-body"><div class="w">
+  <article class="prose">
+    {%- for s in p.sections %}
+    <section aria-labelledby="s{{ loop.index }}">
+      <h2 id="s{{ loop.index }}">{{ s.h }}</h2>
+      {%- for b in s.body %}
+      {%- if b is string %}
+      <p>{{ b }}</p>
+      {%- elif b.ul %}
+      <ul>{% for i in b.ul %}<li>{{ i }}</li>{% endfor %}</ul>
+      {%- elif b.ol %}
+      <ol class="nsteps">{% for i in b.ol %}<li><b>{{ i[0] }}</b> {{ i[1] }}</li>{% endfor %}</ol>
+      {%- elif b.note %}
+      <p class="note-box">{{ b.note }}</p>
+      {%- endif %}
+      {%- endfor %}
+    </section>
+    {%- endfor %}
+    {%- if p.sources %}
+    <section class="sources" aria-labelledby="s-src">
+      <h2 id="s-src">{{ t.sources_h }}</h2>
+      <ul>{% for name, url in p.sources %}<li><a href="{{ url }}" target="_blank" rel="noopener">{{ name }}</a></li>{% endfor %}</ul>
+    </section>
+    {%- endif %}
+  </article>
+  <aside class="side" aria-label="{{ t.side_label }}">
+    <div class="side-card">
+      <b>{{ t.or_eyebrow }}</b>
+      <ol>{% for s in t.steps %}<li><span>{{ s[0] }}</span> {{ s[1] }}</li>{% endfor %}</ol>
+      <a class="btn sm" href="{{ home }}#wycena">{{ t.cta_photo }}</a>
+      <p class="side-call">{{ t.call_line }} <a class="js-call num js-phone" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a></p>
+    </div>
+    <nav class="side-links" aria-label="{{ t.related_h }}">
+      <b>{{ t.related_h }}</b>
+      <ul>{% for slug in p.related %}<li><a href="{{ root }}{{ slug }}/">{{ labels[slug] }}</a></li>{% endfor %}<li><a href="{{ root }}">{{ t.home_link }}</a></li></ul>
+    </nav>
+  </aside>
+</div></div>
+
+{%- if p.faq %}
+<section class="faq" id="faq" aria-labelledby="h-faq"><div class="w">
+  <div><p class="eyebrow">{{ t.faq_eyebrow }}</p><h2 id="h-faq">{{ t.faq_h }}</h2></div>
+  <div>
+    {%- for q in p.faq %}
+    <details><summary>{{ q[0] }}</summary><p>{{ q[1] }}</p></details>
+    {%- endfor %}
+  </div>
+</div></section>
+{%- endif %}
+
+<section class="final" aria-labelledby="h-final"><div class="w">
+  <div><h2 id="h-final">{{ t.fin_h }}</h2><p>{{ t.fin_p }}</p></div>
+  <div class="ctas"><a class="btn dark" href="{{ home }}#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
+</div></section>
+</main>
+
+{% include "_bottom.html.j2" %}

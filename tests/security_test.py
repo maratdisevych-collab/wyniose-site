@@ -8,7 +8,9 @@ _CH = _os.environ.get('CHROMIUM', '/opt/pw-browsers/chromium-1194/chrome-linux/c
 LAUNCH = dict(args=['--no-sandbox'], **({'executable_path': _CH} if _os.path.exists(_CH) else {}))
 B = 'http://127.0.0.1:8766/'
 DIST = os.environ.get('SITE_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site'))
-PAGES = ['', 'en/', 'polityka-prywatnosci/', 'nie-ma-takiej-strony/']
+PAGES = ['', 'en/', 'polityka-prywatnosci/', 'nie-ma-takiej-strony/',
+         'oproznianie-piwnic-strychow-garazy/', 'oproznianie-mieszkania-po-zmarlym/', 'wywoz-mebli-wroclaw/',
+         'dla-firm/', 'obszar-dzialania/', 'jak-pozbyc-sie-starych-mebli-wroclaw/']
 PAYLOADS = ['<img src=x onerror="window.__xss=1">', '"><script>window.__xss=1</script>', "javascript:window.__xss=1", '<svg onload="window.__xss=1">', '${7*7}{{7*7}}']
 INIT = """window.__csp = []; document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + (e.blockedURI || 'inline') + ' ' + (e.sample || '')));"""
 res = {'pass': [], 'fail': []}

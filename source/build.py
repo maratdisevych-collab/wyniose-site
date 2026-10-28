@@ -10,6 +10,7 @@ from markupsafe import Markup
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from i18n import LANGS, DISTRICTS
+from pages import PAGES, LINK_LABEL
 import scene as SCENE
 
 BASE = 'https://wyniose.pl/'
@@ -23,6 +24,7 @@ css = open(os.path.join(SRC, 'style.css'), encoding='utf-8').read()
 js = '\n'.join(open(os.path.join(SRC, f), encoding='utf-8').read() for f in ('app.js', 'stair.js', 'consent.js'))
 env = Environment(loader=FileSystemLoader(SRC), autoescape=True, keep_trailing_newline=True)
 tpl = env.get_template('page.html.j2')
+sub_tpl = env.get_template('subpage.html.j2')
 
 GF_LAT = 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap'
 GF_CYR = 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Oswald:wght@500;600;700&family=Onest:wght@400;500;600;700&display=swap'
@@ -52,14 +54,14 @@ def lang_strings(t):
 def path_of(code):  # site-relative path of a language page
     return '' if code == 'pl' else code + '/'
 
-def ld_json(t):
+def ld_business(t):
     co = CFG.get('company', {}) if isinstance(CFG.get('company'), dict) else {}
     adr = {'@type': 'PostalAddress', 'addressLocality': 'Wrocław', 'addressCountry': 'PL'}
     if co.get('address'):
         m = re.match(r'^(.*?),\s*(\d{2}-\d{3})\s+(.+)$', co['address'])
         if m: adr.update(streetAddress=m.group(1), postalCode=m.group(2), addressLocality=m.group(3))
         else: adr['streetAddress'] = co['address']
-    d = {'@context': 'https://schema.org', '@type': 'LocalBusiness', 'name': 'Wyniosę', 'url': BASE + path_of(t['lang']),
+    d = {'@context': 'https://schema.org', '@type': 'LocalBusiness', '@id': BASE + '#firma', 'name': 'Wyniosę', 'url': BASE + path_of(t['lang']),
          'image': BASE + 'og.png', 'description': t['desc'], 'address': adr,
          'areaServed': {'@type': 'GeoCircle', 'geoMidpoint': {'@type': 'GeoCoordinates', 'latitude': 51.1079, 'longitude': 17.0385}, 'geoRadius': '70000'},
          'knowsLanguage': ['pl', 'uk', 'ru', 'en'], 'paymentAccepted': 'Cash, BLIK, bank transfer'}
@@ -67,7 +69,28 @@ def ld_json(t):
     if CFG.get('email'): d['email'] = CFG['email']
     if co.get('nip'): d['taxID'] = co['nip']
     if co.get('name'): d['legalName'] = co['name']
-    return jsdump(d)
+    return d
+
+def ld_json(t):
+    return jsdump(ld_business(t))
+
+def ld_sub(p, t):
+    """JSON-LD for a Polish service or guide page: the business, the service or article, and the breadcrumb."""
+    url = BASE + p['slug'] + '/'
+    biz = ld_business(t); biz.pop('@context'); biz['url'] = BASE
+    graph = [biz]
+    name = p['h1a'] + ' ' + p['h1b']
+    if p['kind'] in ('service', 'area'):
+        graph.append({'@type': 'Service', '@id': url + '#usluga', 'name': name, 'serviceType': p['service_type'], 'url': url,
+                      'description': p['desc'], 'provider': {'@id': BASE + '#firma'}, 'areaServed': biz['areaServed']})
+    elif p['kind'] == 'article':
+        graph.append({'@type': 'Article', 'headline': name, 'description': p['desc'], 'image': BASE + 'og.png', 'inLanguage': 'pl',
+                      'datePublished': p['published'], 'dateModified': p['updated'], 'mainEntityOfPage': url,
+                      'author': {'@id': BASE + '#firma'}, 'publisher': {'@id': BASE + '#firma'}})
+    graph.append({'@type': 'BreadcrumbList', 'itemListElement': [
+        {'@type': 'ListItem', 'position': 1, 'name': 'Wyniosę', 'item': BASE},
+        {'@type': 'ListItem', 'position': 2, 'name': p['crumb'], 'item': url}]})
+    return jsdump({'@context': 'https://schema.org', '@graph': graph})
 
 def render(t, *, full, proto, root, inline, fonts_url, gfonts, config_inline, icon, canonical, alt, og_image, css_href=None, js_href=None, title=None):
     code = t['lang']
@@ -151,12 +174,27 @@ for code, label, name, t in LANGS:
                   css_href=root + 'assets/style.css?v=' + ver, js_href=root + 'assets/site.js?v=' + ver)
     write(os.path.join(OUT_D, path_of(code), 'index.html'), tidy(html))
 
+# Polish service and guide pages: /<slug>/ (see pages.py)
+PL_T = next(t for c, _, _, t in LANGS if c == 'pl')
+sub_langs = [(c, label, './' if c == 'pl' else '../' + path_of(c), name) for c, label, name, _ in LANGS]
+for p in PAGES:
+    html = sub_tpl.render(
+        t=PL_T, lang='pl', cyr=False, title=p['title'], desc=p['desc'], og_title=p['h1a'] + ' ' + p['h1b'] + ' · Wyniosę',
+        full=True, proto=False, root='../', home='../', logo_href='../', langs=sub_langs,
+        fonts_url='../assets/fonts.css?v=' + ver, gfonts=False, icon=True, css_href='../assets/style.css?v=' + ver,
+        js_href='../assets/site.js?v=' + ver, config_inline=None, jsl=jsdump(lang_strings(PL_T)),
+        canonical=BASE + p['slug'] + '/', alt=[], og_image=BASE + 'og.png', c=contact(True), ldjson=ld_sub(p, PL_T),
+        p=p, labels=LINK_LABEL, current=p['slug'])
+    write(os.path.join(OUT_D, p['slug'], 'index.html'), tidy(html))
+
 write(os.path.join(OUT_D, 'robots.txt'), f'User-agent: *\nAllow: /\nSitemap: {BASE}sitemap.xml\n')
 sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
 for code, *_ in LANGS:
     sm.append(f'  <url><loc>{BASE + path_of(code)}</loc>')
     for h, u in alt: sm.append(f'    <xhtml:link rel="alternate" hreflang="{h}" href="{u}"/>')
     sm.append('  </url>')
+for p in PAGES:
+    sm.append(f"  <url><loc>{BASE + p['slug']}/</loc><lastmod>{p['updated']}</lastmod></url>")
 sm.append('</urlset>')
 write(os.path.join(OUT_D, 'sitemap.xml'), '\n'.join(sm) + '\n')
 # privacy policy: company and contact data baked into the HTML (config.js can still override them later)

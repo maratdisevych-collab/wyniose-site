@@ -1,52 +1,4 @@
-{%- if full -%}
-<!doctype html>
-<html lang="{{ lang }}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-{%- endif %}
-<title>{{ title }}</title>
-{%- if proto %}
-<meta name="claude:viewport-fit-sides" content="cover">
-{%- endif %}
-<meta name="description" content="{{ t.desc }}">
-{%- if full %}
-<meta name="theme-color" content="#F0F2EA">
-{%- if icon %}
-<link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
-{%- endif %}
-{%- for code, href in alt %}
-<link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
-{%- endfor %}
-{%- if canonical %}
-<link rel="canonical" href="{{ canonical }}">
-{%- endif %}
-{%- if og_image %}
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Wyniosę">
-<meta property="og:title" content="{{ t.og_title }}">
-<meta property="og:description" content="{{ t.desc }}">
-<meta property="og:image" content="{{ og_image }}">
-<meta property="og:locale" content="{{ t.locale }}">
-<meta name="twitter:card" content="summary_large_image">
-{%- endif %}
-{%- endif %}
-{%- if ldjson %}
-<script type="application/ld+json">{{ ldjson }}</script>
-{%- endif %}
-{%- if gfonts %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-{%- endif %}
-<link rel="stylesheet" href="{{ fonts_url }}">
-{%- if css_href %}
-<link rel="stylesheet" href="{{ css_href }}">
-{%- else %}
-<style>
-{{ css }}
-</style>
-{%- endif %}
-<script>document.documentElement.classList.add('js')</script>
+{% include "_head.html.j2" %}
 {%- if full %}
 </head>
 <body>
@@ -59,18 +11,7 @@
 </div></div>
 {%- endif %}
 
-<header class="top" id="top"><div class="w">
-  <a class="logo" href="#start" aria-label="Wyniosę">WYNIOSĘ</a>
-  <nav aria-label="{{ t.nav_label }}"><ul>
-    <li><a href="#uslugi">{{ t.nav_services }}</a></li><li><a href="#droga">{{ t.nav_how }}</a></li><li><a href="#wycena">{{ t.nav_quote }}</a></li><li><a href="#o-nas">{{ t.nav_about }}</a></li><li><a href="#ekologia">{{ t.nav_eco }}</a></li>
-  </ul></nav>
-  <div class="langs-nav" aria-label="{{ t.lang_label }}">
-    {%- for code, label, href, name in langs %}
-    <a href="{{ href }}" hreflang="{{ code }}" lang="{{ code }}" title="{{ name }}"{% if code == lang %} aria-current="page"{% endif %}>{{ label }}</a>
-    {%- endfor %}
-  </div>
-  <a class="btn sm hdr-cta" href="#wycena">{{ t.cta_photo }}</a>
-</div></header>
+{% include "_top.html.j2" %}
 
 <main id="start">
 <section class="hero" aria-labelledby="h1"><div class="w">
@@ -141,7 +82,7 @@
   <p class="lead">{{ t.svc_lead }}</p>
   <ul class="doors">
     {%- for s in t.svc %}
-    <li class="door"><span class="oval" aria-hidden="true">{{ loop.index }}</span><div><h3>{{ s[0] }}</h3><p>{{ s[1] }}</p></div></li>
+    <li class="door"><span class="oval" aria-hidden="true">{{ loop.index }}</span><div><h3>{{ s[0] }}</h3><p>{{ s[1] }}</p>{% if s|length > 3 %}<a class="more" href="{{ root }}{{ s[2] }}/">{{ s[3] }} <span aria-hidden="true">→</span></a>{% endif %}</div></li>
     {%- endfor %}
   </ul>
   <p class="fine">{{ t.svc_fine }}</p>
@@ -305,6 +246,9 @@
   <div>
     <ul class="tags">{% for g in t.f_tags %}<li>{{ g }}</li>{% endfor %}</ul>
     <a class="btn" href="#wycena">{{ t.f_btn }}</a>
+    {%- if t.f_more %}
+    <a class="more" href="{{ root }}{{ t.f_more[0] }}/">{{ t.f_more[1] }} <span aria-hidden="true">→</span></a>
+    {%- endif %}
   </div>
 </div></section>
 
@@ -312,7 +256,7 @@
   <div><p class="eyebrow">{{ t.faq_eyebrow }}</p><h2 id="h-faq">{{ t.faq_h }}</h2></div>
   <div>
     {%- for q in t.faq %}
-    <details><summary>{{ q[0] }}</summary><p{% if q[2] %} data-review="{{ q[2] }}"{% endif %}>{{ q[1] }}</p></details>
+    <details><summary>{{ q[0] }}</summary><p{% if q[2] %} data-review="{{ q[2] }}"{% endif %}>{{ q[1] }}{% if q|length > 3 %} <a href="{{ root }}{{ q[3][0] }}/">{{ q[3][1] }}</a>{% endif %}</p></details>
     {%- endfor %}
   </div>
 </div></section>
@@ -323,34 +267,4 @@
 </div></section>
 </main>
 
-<footer id="kontakt"><div class="w">
-  <div><b>Wyniosę</b><p>{{ t.ft_about }}</p></div>
-  <div><b>{{ t.ft_contact }}</b><p>{{ t.ft_phone }} <a class="num js-phone js-call" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a>{% if not c.phone %} <span class="ph ph-phone">{{ t.ph_fill }}</span>{% endif %}</p><p class="js-phone2-row"{% if not c.phone2 %} hidden{% endif %}>{{ t.ft_phone2 }} <a class="num js-phone2" href="{{ c.tel2 or '#kontakt' }}">{{ c.phone2 }}</a></p><p>{{ t.ft_email }} <span class="js-email">{% if c.email %}<a href="mailto:{{ c.email }}">{{ c.email }}</a>{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p></div>
-  <div><b>{{ t.ft_company }}</b><p>{{ t.ft_company_data }} <span class="js-company">{% if c.company_line %}{{ c.company_line }}{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p><p>{% if c.privacy %}<span class="js-privacy"><a href="{{ c.privacy }}">{{ t.js.privacyLink }}</a></span>{% else %}{{ t.ft_privacy }} <span class="js-privacy"><span class="ph">{{ t.ph_prep }}</span></span>{% endif %}</p></div>
-  <div class="ft-bottom"><button type="button" class="linklike" id="consent-open" hidden>{{ t.cookie_settings }}</button></div>
-</div></footer>
-
-<div class="consent" id="consent" role="region" aria-labelledby="consent-t" hidden>
-  <p class="consent-t" id="consent-t">{{ t.consent_title }}</p>
-  <p class="consent-p">{{ t.consent_text }} <a href="{{ c.privacy or '#kontakt' }}">{{ t.consent_more }}</a></p>
-  <div class="consent-b"><button type="button" class="btn sm" id="consent-yes">{{ t.consent_yes }}</button><button type="button" class="btn sm white" id="consent-no">{{ t.consent_no }}</button></div>
-</div>
-<div class="dock"><a class="btn" href="#wycena">{{ t.dock_photo }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.dock_call }}</a></div>
-</div>
-{%- if config_inline is not none %}
-<script>window.SITE = {{ config_inline }};</script>
-{%- else %}
-<script src="{{ root }}config.js"></script>
-{%- endif %}
-<script>window.L = {{ jsl }};</script>
-{%- if js_href %}
-<script src="{{ js_href }}"></script>
-{%- else %}
-<script>
-{{ js }}
-</script>
-{%- endif %}
-{%- if full %}
-</body>
-</html>
-{%- endif %}
+{% include "_bottom.html.j2" %}

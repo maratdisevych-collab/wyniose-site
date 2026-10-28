@@ -1,0 +1,34 @@
+<footer id="kontakt"><div class="w{% if t.ft_links %} has-links{% endif %}">
+  <div><b>Wyniosę</b><p>{{ t.ft_about }}</p></div>
+  <div><b>{{ t.ft_contact }}</b><p>{{ t.ft_phone }} <a class="num js-phone js-call" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a>{% if not c.phone %} <span class="ph ph-phone">{{ t.ph_fill }}</span>{% endif %}</p><p class="js-phone2-row"{% if not c.phone2 %} hidden{% endif %}>{{ t.ft_phone2 }} <a class="num js-phone2" href="{{ c.tel2 or '#kontakt' }}">{{ c.phone2 }}</a></p><p>{{ t.ft_email }} <span class="js-email">{% if c.email %}<a href="mailto:{{ c.email }}">{{ c.email }}</a>{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p></div>
+  {%- if t.ft_links %}
+  <nav aria-label="{{ t.ft_services }}"><b>{{ t.ft_services }}</b><ul class="ft-links">{% for slug, label in t.ft_links %}<li><a href="{{ root }}{{ slug }}/"{% if slug == current %} aria-current="page"{% endif %}>{{ label }}</a></li>{% endfor %}</ul></nav>
+  {%- endif %}
+  <div><b>{{ t.ft_company }}</b><p>{{ t.ft_company_data }} <span class="js-company">{% if c.company_line %}{{ c.company_line }}{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p><p>{% if c.privacy %}<span class="js-privacy"><a href="{{ c.privacy }}">{{ t.js.privacyLink }}</a></span>{% else %}{{ t.ft_privacy }} <span class="js-privacy"><span class="ph">{{ t.ph_prep }}</span></span>{% endif %}</p></div>
+  <div class="ft-bottom"><button type="button" class="linklike" id="consent-open" hidden>{{ t.cookie_settings }}</button></div>
+</div></footer>
+
+<div class="consent" id="consent" role="region" aria-labelledby="consent-t" hidden>
+  <p class="consent-t" id="consent-t">{{ t.consent_title }}</p>
+  <p class="consent-p">{{ t.consent_text }} <a href="{{ c.privacy or '#kontakt' }}">{{ t.consent_more }}</a></p>
+  <div class="consent-b"><button type="button" class="btn sm" id="consent-yes">{{ t.consent_yes }}</button><button type="button" class="btn sm white" id="consent-no">{{ t.consent_no }}</button></div>
+</div>
+<div class="dock"><a class="btn" href="{{ home }}#wycena">{{ t.dock_photo }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.dock_call }}</a></div>
+</div>
+{%- if config_inline is not none %}
+<script>window.SITE = {{ config_inline }};</script>
+{%- else %}
+<script src="{{ root }}config.js"></script>
+{%- endif %}
+<script>window.L = {{ jsl }};</script>
+{%- if js_href %}
+<script src="{{ js_href }}"></script>
+{%- else %}
+<script>
+{{ js }}
+</script>
+{%- endif %}
+{%- if full %}
+</body>
+</html>
+{%- endif %}

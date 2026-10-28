@@ -1,0 +1,49 @@
+{%- if full -%}
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{%- endif %}
+<title>{{ title }}</title>
+{%- if proto %}
+<meta name="claude:viewport-fit-sides" content="cover">
+{%- endif %}
+<meta name="description" content="{{ desc or t.desc }}">
+{%- if full %}
+<meta name="theme-color" content="#F0F2EA">
+{%- if icon %}
+<link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
+{%- endif %}
+{%- for code, href in alt %}
+<link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
+{%- endfor %}
+{%- if canonical %}
+<link rel="canonical" href="{{ canonical }}">
+{%- endif %}
+{%- if og_image %}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wyniosę">
+<meta property="og:title" content="{{ og_title or t.og_title }}">
+<meta property="og:description" content="{{ desc or t.desc }}">
+<meta property="og:image" content="{{ og_image }}">
+<meta property="og:locale" content="{{ t.locale }}">
+<meta name="twitter:card" content="summary_large_image">
+{%- endif %}
+{%- endif %}
+{%- if ldjson %}
+<script type="application/ld+json">{{ ldjson }}</script>
+{%- endif %}
+{%- if gfonts %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+{%- endif %}
+<link rel="stylesheet" href="{{ fonts_url }}">
+{%- if css_href %}
+<link rel="stylesheet" href="{{ css_href }}">
+{%- else %}
+<style>
+{{ css }}
+</style>
+{%- endif %}
+<script>document.documentElement.classList.add('js')</script>

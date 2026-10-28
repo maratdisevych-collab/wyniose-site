@@ -1,6 +1,6 @@
 # Wyniosę website: rules for agents
 
-Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
+Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six Polish service and guide pages listed in `source/pages.py`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
 
 ## How publishing works
 
@@ -14,13 +14,15 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`). Owner:
   - If the live site is wrong, fix forward with `git revert` and push again.
 - **Tests:**
   - `tests/consent_test.py`: Consent Mode v2 basic, one conversion per click, no Google requests before consent. Expects 117/117.
-  - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan. Expects 108/108.
+  - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan, on every page. Expects 240/240.
+  - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 80/80.
   - The sandbox cannot reach Google, so gtag.js is stubbed in the tests.
 
 ## Source map
 
 - **`source/i18n.py`:** all texts, PL and EN (UK and RU dictionaries are kept but not built).
-- **`source/src/page.html.j2`:** the page template.
+- **`source/src/page.html.j2`:** the home page template (PL and EN). Shared parts: `_head.html.j2`, `_top.html.j2` (header), `_bottom.html.j2` (footer, consent banner, mobile dock, scripts).
+- **`source/src/subpage.html.j2`** + **`source/pages.py`:** the Polish service and guide pages (`/<slug>/`), their copy, FAQ, related links and sources. Copy rules are at the top of `pages.py`.
 - **`source/src/`:**
   - `style.css`
   - `app.js`: contacts, job card, WhatsApp message.
@@ -30,7 +32,8 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`). Owner:
 - **`source/static/polityka-prywatnosci.html`:** the privacy policy, in Polish.
 - **`source/build.py`:**
   - builds `source/build/dist`; `release.sh` copies it to `site/`;
-  - computes CSP hashes and writes `_headers`, `.htaccess`, `_redirects`, `security.txt`, `sitemap.xml`, `robots.txt`.
+  - renders the pages from `pages.py`;
+  - computes CSP hashes and writes `_headers`, `.htaccess`, `_redirects`, `security.txt`, `sitemap.xml` (with the service pages), `robots.txt`.
 
 ## Facts that must stay true (do not change without the owner's explicit "да")
 

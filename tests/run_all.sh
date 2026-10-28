@@ -14,6 +14,9 @@ status=0
 echo "== consent and conversions"
 python3 "$ROOT/tests/consent_test.py" > "$LOG/consent.txt" 2>&1 || status=1
 tail -20 "$LOG/consent.txt"
+echo "== seo (static)"
+SITE_DIR="$ROOT/site" python3 "$ROOT/tests/seo_test.py" > "$LOG/seo.txt" 2>&1 || status=1
+tail -8 "$LOG/seo.txt"
 echo "== security"
 SITE_DIR="$ROOT/site" python3 "$ROOT/tests/security_test.py" > "$LOG/security.txt" 2>&1 || status=1
 tail -20 "$LOG/security.txt"
