@@ -5,6 +5,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`). Owner:
 ## How publishing works
 
 - **Netlify:** project `silver-muffin-4fedd6`, site id `4a51e6ed-4312-4b48-80f4-cdf2882c9363`. It publishes the `site/` folder of the `main` branch exactly as committed. Netlify runs no build.
+- **The repository is public** (Netlify's free plan only deploys commits from other authors in public repos). Anything committed is visible to anyone.
 - **Pushing to `main` publishes to the live site.** Nothing reaches `main` unless `bash scripts/release.sh` ends with `ALL CHECKS PASSED`.
 - **Workflow:** edit `source/` → `bash scripts/release.sh` (rebuilds `site/` from `source/`, then runs `tests/run_all.sh`) → commit `source/` and `site/` together → push. Never edit `site/` by hand.
 - **After every push:**
