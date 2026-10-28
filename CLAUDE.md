@@ -73,22 +73,56 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`). Owner:
 - Put passwords, tokens or personal data in the repo.
 - Roll back deploys in Netlify, or change Netlify or DNS settings. Fix forward through git.
 
-## Autonomy (owner chose option A on 2026-10-28)
+## Autonomy (owner's decision, 2026-10-28)
 
-**May be published without asking**, when tests pass:
+The owner allows changes to be published automatically, on one condition: **before anything changes on the live site, he gets a plain-language explanation in Russian.** It covers:
+- what changes, in "Было → Будет" form;
+- where on the page;
+- why;
+- what a visitor will notice.
+
+No jargon, no code, no file names in that explanation. Links go at the end.
+
+### Two kinds of changes
+
+**Safe.** Branch name: `proposal/auto-<YYYY-MM-DD>-<topic>`. Covers:
 - stale facts corrected from an official source (link it in the commit message);
 - Polish or English typos and unnatural wording;
 - technical fixes (errors, broken links, performance, accessibility) that keep the design;
 - small copy improvements inside existing sections, such as a clearer FAQ answer or a new FAQ item backed by evidence.
 
-**Needs the owner's explicit "да" first.** Put the change on a branch `proposal/<topic>`, push the branch (not `main`), describe it in the report, and merge only after "да". This covers changes to:
+**Needs "да".** Branch name: `proposal/ask-<YYYY-MM-DD>-<topic>`. Covers changes to:
 - prices or price wording, promises, guarantees, speed;
 - the legal text (privacy policy), company data, contacts;
 - consent, cookies or tracking;
 - new sections or pages, design or layout, removing sections;
 - anything that changes the offer.
 
-**Every published change** is reported to the owner in the same run: what, where, why, commit link.
+### Process
+
+1. **Monday, weekly review:** prepares changes but does not publish them.
+   - Each change gets its own branch from `main`.
+   - Run `bash scripts/release.sh` on the branch. Push the branch only if it ends with `ALL CHECKS PASSED`.
+   - The report explains every change in plain Russian and states the deadlines:
+     - safe changes go live on Tuesday morning unless he answers "нет";
+     - "ask" changes go live only after his "да".
+2. **The owner's replies in the weekly conversation**, either for all changes or by number:
+   - "да" → merge into `main` now (step 4), publish, verify.
+   - "нет" → delete the branch.
+3. **Daily check, from Tuesday on:**
+   - Picks every `proposal/auto-*` branch at least 12 hours old and merges it into `main` (step 4). Publishes, verifies live, then reports in plain Russian what went live.
+   - Never merges `proposal/ask-*`.
+   - Deletes any proposal branch older than 14 days with no answer and mentions it.
+4. **Merging:**
+   - Merge into `main`, then run `bash scripts/release.sh` on `main`. It rebuilds `site/` from the merged `source/`; resolve conflicts in `site/` by rebuilding.
+   - Commit the rebuilt `site/` if it changed.
+   - Push only after `ALL CHECKS PASSED`. If a merge fails the gate, leave it out and report.
+5. **Emergency exception** (this is a restore, not a change):
+   - **Trigger:** the live site is broken (down, wrong contacts, consent code missing, foreign content) and a recent commit caused it.
+   - **Action:** the daily check reverts that commit at once, publishes, verifies, and tells the owner in plain language what happened.
+   - **If the cause is outside the repository** (DNS, Netlify, hijacked account), it only reports.
+
+**Every published change** is reported in the run that published it: what, where, why, commit link.
 
 ## Commit messages
 
