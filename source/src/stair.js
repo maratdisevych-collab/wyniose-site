@@ -77,7 +77,8 @@
   /* ---------- camera ---------- */
   var W = 1, H = 1, s0 = 1, fx = 0, fy = 0, lo = 0, hi = 0, gy = 0, ready = false;
   function size(){
-    var r = view.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
+    var r = view.getBoundingClientRect(); if(r.width < 2 || r.height < 2){ ready = false; return; }   // hidden: measure again on the next frame
+    W = r.width; H = r.height;
     var lp, rp, aw;
     if(W > 960){ lp = Math.min(470, W*0.35); rp = 96; aw = W - lp - rp; fx = lp + aw/2; fy = H*0.5; s0 = Math.min(aw/1060, H/600); gy = H*0.8; }
     else {
@@ -203,7 +204,12 @@
     }, {rootMargin: mode === 'scroll' ? '200px 0px' : '0px', threshold: [0, 0.2, 0.5, 0.8]}).observe(mode === 'scroll' ? sec : view);
   } else { visible = true; }
   if(mode === 'scroll'){ addEventListener('scroll', onScroll, {passive: true}); onScroll(); }
-  var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ size(); drawnP = -1; draw(mode === 'scroll' ? progress() : curP); }, 120); });
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ size(); drawnP = -1; draw(mode === 'scroll' ? progress() : curP); });
+  function resized(){ size(); drawnP = -1; draw(mode === 'scroll' ? progress() : curP); }
+  var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(resized, 120); });
+  /* the view can change size without a resize event reaching the page in time (tablet rotation, browser bars,
+     a hidden pane or tab being shown); a camera sized for the old box zooms in and crops the street, so watch the view itself */
+  if('ResizeObserver' in window) new ResizeObserver(function(){ if(Math.abs(view.clientWidth - W) > 1 || Math.abs(view.clientHeight - H) > 1) resized(); }).observe(view);
+  addEventListener('orientationchange', function(){ setTimeout(resized, 300); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(resized);
   window.__stair = {mode: mode, draw: function(p){ drawnP = -1; draw(p); }, state: function(){ return {p: curP, playing: playing}; }, stop: function(){ autoPaused = false; pause(); }};
 })();
