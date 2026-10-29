@@ -121,6 +121,8 @@ No jargon, no code, no file names in that explanation. Links go at the end.
    - Merge into `main`, then run `bash scripts/release.sh` on `main`. It rebuilds `site/` from the merged `source/`; resolve conflicts in `site/` by rebuilding.
    - Commit the rebuilt `site/` if it changed.
    - Push only after `ALL CHECKS PASSED`. If a merge fails the gate, leave it out and report.
+   - Skip a branch that is already contained in `main` (`git merge-base --is-ancestor origin/<branch> origin/main`); it was published earlier.
+   - Deleting remote branches is blocked by the session's git proxy. Do not retry; list merged branches in the report so the owner can delete them on GitHub (Branches page).
 5. **Emergency exception** (this is a restore, not a change):
    - **Trigger:** the live site is broken (down, wrong contacts, consent code missing, foreign content) and a recent commit caused it.
    - **Action:** the daily check reverts that commit at once, publishes, verifies, and tells the owner in plain language what happened.
