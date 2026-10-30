@@ -210,7 +210,7 @@ PL_T = next(t for c, _, _, t in LANGS if c == 'pl')
 sub_langs = [(c, label, './' if c == 'pl' else '../' + path_of(c), name) for c, label, name, _ in LANGS]
 for p in PAGES:
     html = sub_tpl.render(
-        t=PL_T, lang='pl', cyr=False, title=p['title'], desc=p['desc'], og_title=p['h1a'] + ' ' + p['h1b'] + ' · Wyniosę',
+        t=PL_T, lang='pl', cyr=False, title=p['title'], desc=p['desc'], og_title=p.get('og_title') or (p['h1a'] + ' ' + p['h1b'] + ' | Wyniosę'),
         full=True, proto=False, root='../', home='../', logo_href='../', langs=sub_langs,
         fonts_url='../assets/fonts.css?v=' + ver, gfonts=False, icon=True, css_href='../assets/style.css?v=' + ver,
         js_href='../assets/site.js?v=' + ver, config_inline=None, jsl=jsdump(lang_strings(PL_T)),
