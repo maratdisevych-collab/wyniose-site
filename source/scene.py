@@ -220,7 +220,7 @@ def build():
     v.append(rect(L - 150, GROUND - 244, 4, 204, '#174A35'))
     v.append(rect(0, GROUND - 96, L, 26, C['signal']))
     v.append(path(''.join(f'M{x} {GROUND - 96}l26 0l-26 26Z' for x in range(0, 100, 26)), fill=C['ink']))
-    v.append(text((L - 150) / 2 + 4, GROUND - 140, 'WYNIOSĘ', 70, '#fff', ' class="sc-n"'))
+    v.append(f'<image href="/logo-light.svg" x="{r((L - 150) / 2 + 4 - 140)}" y="{r(GROUND - 206)}" width="280" height="68"/>')
     v.append(rect(L - 26, GROUND - 120, 22, 18, '#FFF1C2', ' rx="4"'))
     for wx in (110, L - 110):
         v.append(f'<g class="sc-wheel" data-x="{wx}"><circle cx="{wx}" cy="{GROUND - 34}" r="40" fill="#EEF0E8"/><circle cx="{wx}" cy="{GROUND - 34}" r="33" fill="#111A16"/><g class="sc-spin"><circle cx="{wx}" cy="{GROUND - 34}" r="14" fill="#9AA59E"/><rect x="{wx - 3}" y="{GROUND - 52}" width="6" height="36" fill="#5D6B62"/></g></g>')

@@ -1,5 +1,5 @@
 <footer id="kontakt"><div class="w{% if t.ft_links %} has-links{% endif %}">
-  <div><b>Wyniosę</b><p>{{ t.ft_about }}</p></div>
+  <div><img class="ft-logo" src="{{ root }}logo-light.svg" alt="Wyniosę" width="150" height="36"><p>{{ t.ft_about }}</p></div>
   <div><b>{{ t.ft_contact }}</b><p>{{ t.ft_phone }} <a class="num js-phone js-call" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a>{% if not c.phone %} <span class="ph ph-phone">{{ t.ph_fill }}</span>{% endif %}</p><p class="js-phone2-row"{% if not c.phone2 %} hidden{% endif %}>{{ t.ft_phone2 }} <a class="num js-phone2" href="{{ c.tel2 or '#kontakt' }}">{{ c.phone2 }}</a></p><p>{{ t.ft_email }} <span class="js-email">{% if c.email %}<a href="mailto:{{ c.email }}">{{ c.email }}</a>{% else %}<span class="ph">{{ t.ph_fill }}</span>{% endif %}</span></p></div>
   {%- if t.ft_links %}
   <nav aria-label="{{ t.ft_services }}"><b>{{ t.ft_services }}</b><ul class="ft-links">{% for slug, label in t.ft_links %}<li><a href="{{ root }}{{ slug }}/"{% if slug == current %} aria-current="page"{% endif %}>{{ label }}</a></li>{% endfor %}</ul></nav>

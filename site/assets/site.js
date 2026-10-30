@@ -1,4 +1,3 @@
-/* Page behaviour: contact config, review toggle, the pen, the job card. Strings come from window.L, contact data from window.SITE. */
 (function(){
   var L = window.L || {}, SITE = window.SITE || {};
   var $ = function(id){ return document.getElementById(id); };
@@ -6,13 +5,10 @@
   var header = $('top');
   function setHH(){ if(header) document.documentElement.style.setProperty('--hh', header.offsetHeight + 'px'); }
   setHH(); addEventListener('resize', setHH);
-
-  /* contact data: filled in config, otherwise placeholders stay */
   var digits = function(s){ return String(s || '').replace(/[^\d+]/g, ''); };
   var phone = digits(SITE.phone), wa = digits(SITE.whatsapp || SITE.phone).replace(/^\+/, '');
   var phoneText = SITE.phone ? String(SITE.phone) : '+48 ··· ··· ···';
   Array.prototype.forEach.call(document.querySelectorAll('.js-phone'), function(el){ el.textContent = phoneText; });
-  /* every WhatsApp button opens the chat with a short greeting; without a number it stays a link to the job card */
   if(wa){
     var waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(L.waText || '');
     Array.prototype.forEach.call(document.querySelectorAll('.js-wa'), function(a){ a.setAttribute('href', waHref); a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); });
@@ -31,17 +27,6 @@
   }
   function safeUrl(u){ return /^(\/(?!\/)|https:\/\/)/.test(String(u || '')); }
   if(SITE.privacyUrl && safeUrl(SITE.privacyUrl)){ Array.prototype.forEach.call(document.querySelectorAll('.js-privacy'), function(el){ el.innerHTML = ''; var a = document.createElement('a'); a.href = SITE.privacyUrl; a.textContent = L.privacyLink || 'PDF'; el.appendChild(a); }); }
-
-  /* review toggle (prototype only) */
-  var rv = $('review');
-  if(rv){
-    var n = document.querySelectorAll('[data-review]').length;
-    rv.textContent = (L.review || 'Review ({n})').replace('{n}', n); if(!n) rv.hidden = true;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-review]'), function(el){ el.title = el.getAttribute('data-review'); });
-    rv.addEventListener('click', function(){ var on = document.body.classList.toggle('show-review'); rv.setAttribute('aria-pressed', on); });
-  }
-
-  /* the pen crosses out "someday" */
   var ill = $('ill'); if(ill) ill.classList.add('drawn');
   var hook = $('hook'), lines = L.hook || [], word = L.hookWord || '', q1 = L.q1 || '„', q2 = L.q2 || '”';
   function len(p){ try { return p.getTotalLength(); } catch(e){ return 120; } }
@@ -55,8 +40,6 @@
     setTimeout(function(){ line.animate(reduce ? [{opacity:1},{opacity:0}] : [{opacity:1},{opacity:0, transform:'translateX(-16px)'}], {duration:380, easing:'ease-in', fill:'forwards'}); }, 3500);
   }
   if(hook && lines.length && hook.animate){ var hi = 0; show(0); setInterval(function(){ if(document.hidden) return; hi = (hi + 1) % lines.length; show(hi); }, 3900); }
-
-  /* job card */
   var F = $('karta'); if(!F) return;
   var co = $('k-co'), area = $('k-area'), dt = $('k-date'), kpath = $('kpath'), whenEl = $('when'), itemsEl = $('items'), stamp = $('stamp'), msg = $('msg'), tip = $('tip'), status = $('status');
   var M = L.msg || {}, struck = false, sendA = $('send');
@@ -97,21 +80,12 @@
   F.addEventListener('input', update); F.addEventListener('change', update); F.addEventListener('submit', function(e){ e.preventDefault(); });
   Array.prototype.forEach.call(F.querySelectorAll('[data-add]'), function(b){ b.addEventListener('click', function(){ var cur = co.value.trim(); co.value = cur ? cur.replace(/[,\s]+$/, '') + ', ' + b.getAttribute('data-add') : b.getAttribute('data-add'); update(); }); });
   update();
-  sendA.addEventListener('click', function(e){
-    if(wa){ status.textContent = L.opening || ''; return; }
-    e.preventDefault(); status.textContent = L.proto || '';
-  });
+  sendA.addEventListener('click', function(){ if(wa) status.textContent = L.opening || ''; });
   $('copy').addEventListener('click', function(){
     function sel(){ var r = document.createRange(); r.selectNodeContents(msg); var s = getSelection(); s.removeAllRanges(); s.addRange(r); status.textContent = L.select || ''; }
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ status.textContent = L.copied || ''; try { window.dispatchEvent(new CustomEvent('wyniose:copied')); } catch(e){} }, sel); else sel();
   });
 })();
-
-/* Stairwell scene: one SVG cut-away of a tenement (built by scene.py). The camera is the viewBox; JS moves the box,
-   two doors and the van. Nothing is drawn per pixel, so it stays sharp and light on tablets and phones.
-   Modes: "scroll" (laptops and desktops: page scroll drives it) and "auto" (phones, tablets and frames that cannot
-   scroll: a short clip that starts from the beginning when the scene is in view and pauses when it leaves).
-   The stage markers (IV ... PSZOK) jump to that stage in either mode. */
 (function(){
   var sec = document.getElementById('droga'); if(!sec) return;
   var svg = document.getElementById('scene'); if(!svg || !svg.setAttribute) return;
@@ -122,7 +96,6 @@
   var canScroll = (Math.max(de.scrollHeight, document.body.scrollHeight) - window.innerHeight) > window.innerHeight*1.5;
   function mq(q){ return !!(window.matchMedia && matchMedia(q).matches); }
   var small = mq('(max-width: 960px)') || window.innerWidth <= 960, touch = mq('(pointer: coarse)');
-  // the owners want the clip to play for everyone, so "reduce motion" no longer freezes it; the pause button stays
   var mode = canScroll && !small && !touch ? 'scroll' : 'auto';
   sec.classList.add('anim'); if(mode === 'scroll') sec.classList.add('scroll');
   sec.setAttribute('data-mode', mode);
@@ -133,8 +106,6 @@
   var box = $('sc-box'), leaf = $('sc-leaf'), exitLeaf = $('sc-exit'), day = $('sc-daylight'), van = $('sc-van'), rear = $('sc-rear');
   var spins = [].slice.call(svg.querySelectorAll('.sc-spin')), wheels = [].slice.call(svg.querySelectorAll('.sc-wheel'));
   var slots = {back: $('sc-slot-back'), front: $('sc-slot-front'), van: $('sc-slot-van'), skip: $('sc-slot-skip'), out: $('sc-slot-out')};
-
-  /* ---------- geometry (from scene.py) ---------- */
   var SH = G.SH, NF = G.NF, GR = G.G, FR = G.FR, HL1 = G.HL1, NS = G.NS, TW = G.TW, RS = G.RS;
   var DOORX = G.DB + G.DW/2, HINGE = G.DB + G.DW, VX = G.VX, VL = G.VL, VDX = G.VDX, SKX = G.SK + G.SKW/2;
   var BMIN = 225, BMAX = 1275, BC = (BMIN + BMAX)/2;
@@ -144,9 +115,7 @@
   function seg(p,a,b){ return clamp((p - a)/(b - a), 0, 1); }
   function ease(x){ return x*x*(3 - 2*x); }
   function lerp(a,b,t){ return a + (b - a)*t; }
-
-  /* ---------- the box path ---------- */
-  function steps(q, dir, x0, y0){ // q: 0..NS steps walked from x0 going dir; returns x, y (with a drop at each step) and tilt
+  function steps(q, dir, x0, y0){
     var i = Math.min(NS - 1, Math.floor(q)), fr = q - i, d = clamp(fr/0.34, 0, 1);
     return {x: x0 + dir*TW*q, y: y0 + RS*(i + ease(d)), rot: dir*7*Math.sin(Math.PI*d), lin: y0 + RS*q};
   }
@@ -174,7 +143,7 @@
     b.dx = VDX*ease(seg(p, P_LOAD + 0.004, P_DRIVE - 0.004));
     if(p < P_DRIVE){ b.rear = 0; b.op = 0; b.x = VX + 90 + b.dx; b.slot = 'van'; return b; }
     b.rear = ease(seg(p, P_DRIVE, P_DRIVE + 0.014));
-    var vr = VX + VDX;                                   // van rear after the drive
+    var vr = VX + VDX;
     var o = ease(seg(p, P_DRIVE + 0.01, P_DRIVE + 0.03)), f = seg(p, P_DRIVE + 0.03, P_DROP);
     if(f <= 0){ b.x = lerp(vr + 60, vr - 40, o); b.y = GR - 44; b.slot = 'van'; return b; }
     var fe = ease(f);
@@ -182,11 +151,9 @@
     b.slot = f > 0.6 ? 'skip' : 'out';
     return b;
   }
-
-  /* ---------- camera ---------- */
   var W = 1, H = 1, s0 = 1, fx = 0, fy = 0, lo = 0, hi = 0, gy = 0, ready = false;
   function size(){
-    var r = view.getBoundingClientRect(); if(r.width < 2 || r.height < 2){ ready = false; return; }   // hidden: measure again on the next frame
+    var r = view.getBoundingClientRect(); if(r.width < 2 || r.height < 2){ ready = false; return; }
     W = r.width; H = r.height;
     var lp, rp, aw;
     if(W > 960){ lp = Math.min(470, W*0.35); rp = 96; aw = W - lp - rp; fx = lp + aw/2; fy = H*0.5; s0 = Math.min(aw/1060, H/600); gy = H*0.8; }
@@ -219,8 +186,6 @@
     var v = x.toFixed(1) + ' ' + y.toFixed(1) + ' ' + vw.toFixed(1) + ' ' + vh.toFixed(1);
     if(v !== lastVB){ svg.setAttribute('viewBox', v); lastVB = v; }
   }
-
-  /* ---------- frame ---------- */
   var curSlot = '', cache = {};
   function attr(el, k, v){ if(!el) return; var key = (el.id || '') + k; if(cache[key] === v) return; cache[key] = v; el.setAttribute(k, v); }
   function frame(p){
@@ -238,8 +203,6 @@
     for(var i = 0; i < spins.length; i++){ var wx = wheels[i].getAttribute('data-x'); attr(spins[i], 'transform', 'rotate(' + ang.toFixed(1) + ' ' + wx + ' ' + (GR - 34) + ')'); }
     setVB(camAt(p, b));
   }
-
-  /* ---------- captions ---------- */
   var current = -1;
   function phaseOf(p){
     if(p < P_DN) return Math.min(4, Math.round(4*seg(p, P_IN, P_DN)));
@@ -254,19 +217,13 @@
   }
   var curP = 0, drawnP = -1;
   function draw(p){ if(!ready) size(); curP = p; if(Math.abs(p - drawnP) < 0.0002) return; drawnP = p; frame(p); setPhase(p); if(scrub) scrub.value = Math.round(p*1000); }
-
-  /* ---------- scroll mode ---------- */
   function hh(){ return parseFloat(getComputedStyle(de).getPropertyValue('--hh')) || 0; }
   function progress(){ var r = track.getBoundingClientRect(), top = hh(), total = r.height - (window.innerHeight - top); return clamp((top - r.top)/Math.max(1, total), 0, 1); }
   var visible = false, ticking = false;
   function onScroll(){ if(!ticking && visible){ ticking = true; requestAnimationFrame(function(){ ticking = false; draw(progress()); }); } }
-
-  /* ---------- player (auto / still) ---------- */
   var playing = false, t0 = 0, pStart = 0, DUR = small ? 13000 : 17000, raf = 0, autoplayed = false, autoPaused = false;
   var ICON = {play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>', pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor"/></svg>', replay:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" fill="currentColor"/></svg>'};
   function setBtn(k){ if(!pbtn) return; pbtn.innerHTML = ICON[k]; pbtn.setAttribute('aria-label', (L.player && L.player[k]) || k); }
-  /* frame pacing: 60 fps where the phone keeps up; if frames start arriving late, settle on a steady 30 fps
-     (an even 30 looks smoother than a stuttering 60) */
   var lastT = 0, lastDraw = 0, slow = 0, cap = 0;
   function tick(now){
     if(!playing) return;
@@ -283,8 +240,6 @@
     pbtn.addEventListener('click', function(){ autoPaused = false; playing ? pause() : play(); });
     scrub.addEventListener('input', function(){ autoPaused = false; if(playing) pause(); drawnP = -1; draw(scrub.value/1000); });
   }
-
-  /* ---------- stage markers: jump to a stage ---------- */
   var STAGE_P = [0, P_IN + (P_DN - P_IN)*0.875/4, P_IN + (P_DN - P_IN)*1.875/4, P_IN + (P_DN - P_IN)*2.875/4, P_IN + (P_DN - P_IN)*3.875/4, P_VAN - 0.008, P_DRIVE - 0.018];
   railBtns.forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -298,8 +253,6 @@
       drawnP = -1; draw(p); if(was) play(); else setBtn('play');
     });
   });
-
-  /* ---------- visibility, resize ---------- */
   size(); draw(curP);
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(es){
@@ -315,26 +268,11 @@
   if(mode === 'scroll'){ addEventListener('scroll', onScroll, {passive: true}); onScroll(); }
   function resized(){ size(); drawnP = -1; draw(mode === 'scroll' ? progress() : curP); }
   var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(resized, 120); });
-  /* the view can change size without a resize event reaching the page in time (tablet rotation, browser bars,
-     a hidden pane or tab being shown); a camera sized for the old box zooms in and crops the street, so watch the view itself */
   if('ResizeObserver' in window) new ResizeObserver(function(){ if(Math.abs(view.clientWidth - W) > 1 || Math.abs(view.clientHeight - H) > 1) resized(); }).observe(view);
   addEventListener('orientationchange', function(){ setTimeout(resized, 300); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(resized);
   window.__stair = {mode: mode, draw: function(p){ drawnP = -1; draw(p); }, state: function(){ return {p: curP, playing: playing}; }, stop: function(){ autoPaused = false; pause(); }};
 })();
-
-/* Google Ads with Consent Mode v2, basic implementation
-   (developers.google.com/tag-platform/security/guides/consent?consentmode=basic).
-   - Nothing from Google is requested until the visitor agrees. After a refusal nothing is requested at all.
-   - Consent defaults (all denied) are queued before any config or event; on consent only the granted
-     categories are updated (ad_storage, ad_user_data). ad_personalization and analytics_storage stay denied.
-   - Conversions, secondary actions in Google Ads, one per click, no value, nothing personal attached:
-       Telefon  = a real click on any tel: link (hero, card, final CTA, mobile dock, footer)
-       WhatsApp = a real click on "Wyślij na WhatsApp" (the wa.me link of the job card)
-     Clicks made before consent are never replayed. Navigation is never delayed or blocked.
-   - Copying the job card is a local diagnostic event only (window.__wyDiag), never sent to Google.
-   - The primary goal, calls from ads of 60 s or more, is measured inside Google Ads; nothing here.
-   Config: window.SITE.ads = {id: "AW-…", tel: "AW-…/label", wa: "AW-…/label"}. */
 (function(){
   var SITE = window.SITE || {}, A = SITE.ads || {};
   var ID_OK = /^AW-\d{6,}$/, SEND_OK = /^AW-\d{6,}\/[A-Za-z0-9_-]+$/;
@@ -342,9 +280,6 @@
   var banner = document.getElementById('consent'), openBtn = document.getElementById('consent-open');
   var diag = window.__wyDiag = window.__wyDiag || [];
   function note(type, extra){ var d = {type: type, t: Date.now()}; for(var k in extra) d[k] = extra[k]; diag.push(d); }
-
-  /* keep ad-click parameters (gclid, gbraid, wbraid, utm_*) when switching language, without storing them anywhere,
-     so the tag can still read them from the address if consent is given on the other page */
   var AD_PARAMS = /^(gclid|gbraid|wbraid|gad_source|gad_campaignid|utm_[a-z]+)$/;
   function adQuery(){
     try { var q = new URLSearchParams(location.search), keep = new URLSearchParams();
@@ -352,11 +287,8 @@
   }
   var aq = adQuery();
   if(aq) [].forEach.call(document.querySelectorAll('.langs-nav a'), function(a){ var h = a.getAttribute('href') || ''; if(h.indexOf('?') < 0) a.setAttribute('href', h.replace(/(#.*)?$/, aq + '$1')); });
-
-  window.addEventListener('wyniose:copied', function(){ note('copy_job_card'); });   // diagnostic only
-
+  window.addEventListener('wyniose:copied', function(){ note('copy_job_card'); });
   if(!enabled){ if(banner) banner.hidden = true; if(openBtn) openBtn.hidden = true; window.__consent = {enabled: false}; return; }
-
   var KEY = 'wyniose-consent-v1', MAX_AGE = 365*24*3600*1000;
   function read(){
     try { var v = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -364,13 +296,11 @@
     return null;
   }
   function save(state){ try { localStorage.setItem(KEY, JSON.stringify({ads: state, t: Date.now()})); } catch(e){} }
-
   window.dataLayer = window.dataLayer || [];
   function gtag(){ window.dataLayer.push(arguments); }
   window.gtag = gtag;
   gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied'});
   gtag('set', 'ads_data_redaction', true);
-
   var loaded = false, granted = false, failed = false;
   function load(){
     if(loaded) return; loaded = true;
@@ -378,7 +308,7 @@
     gtag('config', A.id);
     var s = document.createElement('script');
     s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(A.id);
-    s.onerror = function(){ failed = true; note('tag_blocked'); };   // ad blocker or network: the buttons keep working
+    s.onerror = function(){ failed = true; note('tag_blocked'); };
     document.head.appendChild(s);
   }
   function clearAdCookies(){
@@ -403,8 +333,6 @@
     banner.hidden = false; document.documentElement.classList.add('consent-open');
     var b = focus && banner.querySelector('button'); if(b) try { b.focus({preventScroll: true}); } catch(e){}
   }
-
-  /* one listener for the whole page, one event per click; a second tap on the same action within 3 s is ignored */
   var last = {};
   function conversion(kind){
     if(!granted || !loaded) return false;
@@ -420,16 +348,13 @@
     if(/^tel:/i.test(href)) conversion('tel');
     else if(/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(a.href)) conversion('wa');
   }, true);
-
   if(banner){
     var yes = document.getElementById('consent-yes'), no = document.getElementById('consent-no');
     if(yes) yes.addEventListener('click', function(){ decide('granted', true); });
     if(no) no.addEventListener('click', function(){ decide('denied', true); });
   }
   if(openBtn){ openBtn.hidden = false; openBtn.addEventListener('click', function(){ ask(true); }); }
-
   var stored = read();
   if(stored) decide(stored, false); else ask(false);
-
   window.__consent = {enabled: true, state: function(){ return {granted: granted, loaded: loaded, failed: failed, stored: read()}; }};
 })();

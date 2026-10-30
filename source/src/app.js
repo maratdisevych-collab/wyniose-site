@@ -1,4 +1,4 @@
-/* Page behaviour: contact config, review toggle, the pen, the job card. Strings come from window.L, contact data from window.SITE. */
+/* Page behaviour: contact config, the pen, the job card. Strings come from window.L, contact data from window.SITE. */
 (function(){
   var L = window.L || {}, SITE = window.SITE || {};
   var $ = function(id){ return document.getElementById(id); };
@@ -31,15 +31,6 @@
   }
   function safeUrl(u){ return /^(\/(?!\/)|https:\/\/)/.test(String(u || '')); }
   if(SITE.privacyUrl && safeUrl(SITE.privacyUrl)){ Array.prototype.forEach.call(document.querySelectorAll('.js-privacy'), function(el){ el.innerHTML = ''; var a = document.createElement('a'); a.href = SITE.privacyUrl; a.textContent = L.privacyLink || 'PDF'; el.appendChild(a); }); }
-
-  /* review toggle (prototype only) */
-  var rv = $('review');
-  if(rv){
-    var n = document.querySelectorAll('[data-review]').length;
-    rv.textContent = (L.review || 'Review ({n})').replace('{n}', n); if(!n) rv.hidden = true;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-review]'), function(el){ el.title = el.getAttribute('data-review'); });
-    rv.addEventListener('click', function(){ var on = document.body.classList.toggle('show-review'); rv.setAttribute('aria-pressed', on); });
-  }
 
   /* the pen crosses out "someday" */
   var ill = $('ill'); if(ill) ill.classList.add('drawn');
@@ -97,10 +88,7 @@
   F.addEventListener('input', update); F.addEventListener('change', update); F.addEventListener('submit', function(e){ e.preventDefault(); });
   Array.prototype.forEach.call(F.querySelectorAll('[data-add]'), function(b){ b.addEventListener('click', function(){ var cur = co.value.trim(); co.value = cur ? cur.replace(/[,\s]+$/, '') + ', ' + b.getAttribute('data-add') : b.getAttribute('data-add'); update(); }); });
   update();
-  sendA.addEventListener('click', function(e){
-    if(wa){ status.textContent = L.opening || ''; return; }
-    e.preventDefault(); status.textContent = L.proto || '';
-  });
+  sendA.addEventListener('click', function(){ if(wa) status.textContent = L.opening || ''; });
   $('copy').addEventListener('click', function(){
     function sel(){ var r = document.createRange(); r.selectNodeContents(msg); var s = getSelection(); s.removeAllRanges(); s.addRange(r); status.textContent = L.select || ''; }
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ status.textContent = L.copied || ''; try { window.dispatchEvent(new CustomEvent('wyniose:copied')); } catch(e){} }, sel); else sel();

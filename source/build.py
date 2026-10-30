@@ -20,8 +20,39 @@ OUT_A = os.path.join(HERE, 'build', 'artifact')
 OUT_D = os.path.join(HERE, 'build', 'dist')
 FS = os.environ.get('FONTSOURCE', '/nonexistent')
 
-css = open(os.path.join(SRC, 'style.css'), encoding='utf-8').read()
-js = '\n'.join(open(os.path.join(SRC, f), encoding='utf-8').read() for f in ('app.js', 'stair.js', 'consent.js'))
+def strip_js(src):
+    """Drop comments and blank lines from a script, leaving strings, template literals and regex literals untouched."""
+    out, i, n, last = [], 0, len(src), ''
+    while i < n:
+        c = src[i]
+        if c in '\'"`':
+            j = i + 1
+            while j < n and src[j] != c:
+                j += 2 if src[j] == '\\' else 1
+            out.append(src[i:j + 1]); last = c; i = j + 1; continue
+        if c == '/' and src[i + 1:i + 2] == '*':
+            j = src.find('*/', i + 2); i = n if j < 0 else j + 2; continue
+        if c == '/' and src[i + 1:i + 2] == '/':
+            j = src.find('\n', i); i = n if j < 0 else j; continue
+        if c == '/' and (last == '' or last in '(,=:[!&|?{};+-*%<>~^' or re.search(r'(?:return|typeof|case)\s*$', ''.join(out[-3:]))):
+            j, cls = i + 1, False
+            while j < n and (cls or src[j] != '/'):
+                if src[j] == '\\': j += 1
+                elif src[j] == '[': cls = True
+                elif src[j] == ']': cls = False
+                j += 1
+            out.append(src[i:j + 1]); last = '/'; i = j + 1; continue
+        out.append(c)
+        if not c.isspace(): last = c
+        i += 1
+    return '\n'.join(l.rstrip() for l in ''.join(out).split('\n') if l.strip()) + '\n'
+
+def strip_css(src):
+    src = re.sub(r'/\*.*?\*/', '', src, flags=re.S)
+    return '\n'.join(l.rstrip() for l in src.split('\n') if l.strip()) + '\n'
+
+css = strip_css(open(os.path.join(SRC, 'style.css'), encoding='utf-8').read())
+js = strip_js('\n'.join(open(os.path.join(SRC, f), encoding='utf-8').read() for f in ('app.js', 'stair.js', 'consent.js')))
 env = Environment(loader=FileSystemLoader(SRC), autoescape=True, keep_trailing_newline=True)
 tpl = env.get_template('page.html.j2')
 sub_tpl = env.get_template('subpage.html.j2')
@@ -62,7 +93,7 @@ def ld_business(t):
         if m: adr.update(streetAddress=m.group(1), postalCode=m.group(2), addressLocality=m.group(3))
         else: adr['streetAddress'] = co['address']
     d = {'@context': 'https://schema.org', '@type': 'LocalBusiness', '@id': BASE + '#firma', 'name': 'Wyniosę', 'url': BASE + path_of(t['lang']),
-         'image': BASE + 'og.png', 'description': t['desc'], 'address': adr,
+         'image': BASE + 'og.png', 'logo': BASE + 'icon-512.png', 'description': t['desc'], 'address': adr,
          'areaServed': {'@type': 'GeoCircle', 'geoMidpoint': {'@type': 'GeoCoordinates', 'latitude': 51.1079, 'longitude': 17.0385}, 'geoRadius': '70000'},
          'knowsLanguage': ['pl', 'uk', 'ru', 'en'], 'paymentAccepted': 'Cash, BLIK, bank transfer'}
     if CFG.get('phone'): d['telephone'] = digits(CFG['phone'])
@@ -162,8 +193,8 @@ write(os.path.join(OUT_D, 'assets', 'fonts.css'), fonts_css)
 ver = hashlib.sha1((css + js + fonts_css).encode()).hexdigest()[:8]
 write(os.path.join(OUT_D, 'assets', 'style.css'), css)
 write(os.path.join(OUT_D, 'assets', 'site.js'), js)
-cfg_head = open(os.path.join(HERE, 'config.template.js'), encoding='utf-8').read().split('window.SITE')[0]
-write(os.path.join(OUT_D, 'config.js'), cfg_head + 'window.SITE = ' + json.dumps(CFG, ensure_ascii=False, indent=2) + ';\n')
+# the field notes live in config.template.js; the published file carries only the data
+write(os.path.join(OUT_D, 'config.js'), 'window.SITE = ' + json.dumps(CFG, ensure_ascii=False, indent=2) + ';\n')
 
 hreflang = {'pl': 'pl', 'uk': 'uk', 'ru': 'ru', 'en': 'en'}
 alt = [(hreflang[c], BASE + path_of(c)) for c, *_ in LANGS] + [('x-default', BASE)]
@@ -212,7 +243,7 @@ for k, v in fills.items():
 for k, field in (('ADDR_HIDDEN', co.get('address')), ('REGON_HIDDEN', co.get('regon')), ('PHONE2_HIDDEN', CFG.get('phone2'))):
     pp = pp.replace('<!--%s-->' % k, '' if field else ' hidden')
 write(os.path.join(OUT_D, 'polityka-prywatnosci', 'index.html'), pp)
-for extra in ('favicon.svg', 'og.png', '404.html'):
+for extra in ('favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'icon-512.png', 'logo.svg', 'logo-light.svg', 'og.png', '404.html'):
     p = os.path.join(HERE, 'static', extra)
     if os.path.exists(p): shutil.copy(p, os.path.join(OUT_D, extra))
 

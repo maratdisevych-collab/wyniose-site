@@ -4,12 +4,6 @@
 <body>
 {%- endif %}
 <div class="site{% if cyr %} cyr{% endif %}" lang="{{ lang }}">
-{%- if proto %}
-<div class="proto" role="note"><div class="w">
-  <span>{{ t.proto_note }}</span>
-  <button type="button" id="review" aria-pressed="false">{{ t.review_btn }}</button>
-</div></div>
-{%- endif %}
 
 {% include "_top.html.j2" %}
 
@@ -237,7 +231,7 @@
       <rect x="276" y="56" width="3" height="158" fill="#174A35"/>
       <rect x="40" y="214" width="596" height="26" fill="#FFD02A"/>
       <rect x="40" y="214" width="110" height="26" fill="url(#hatch2)"/>
-      <text x="66" y="148" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="900" font-size="104" fill="#fff">WYNIOSĘ</text>
+      <image href="{{ root }}logo-light.svg" x="64" y="70" width="330" height="80"/>
       <text x="70" y="190" font-family="Rethink Sans, Onest, Arial, sans-serif" font-weight="700" font-size="17" letter-spacing="3" fill="#CFE3D8">OPRÓŻNIANIE · WYWÓZ · WROCŁAW</text>
       <text x="300" y="233" font-family="Rethink Sans, Onest, Arial, sans-serif" font-weight="700" font-size="16" fill="#1C1604">WhatsApp: <tspan class="js-phone">{{ c.phone or '+48 ··· ··· ···' }}</tspan></text>
       <rect x="564" y="94" width="12" height="28" rx="3" fill="#111A16"/>

@@ -6,14 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 {%- endif %}
 <title>{{ title }}</title>
-{%- if proto %}
-<meta name="claude:viewport-fit-sides" content="cover">
-{%- endif %}
 <meta name="description" content="{{ desc or t.desc }}">
 {%- if full %}
 <meta name="theme-color" content="#F0F2EA">
 {%- if icon %}
+<link rel="icon" href="{{ root }}favicon.ico" sizes="32x32">
 <link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ root }}apple-touch-icon.png">
 {%- endif %}
 {%- for code, href in alt %}
 <link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
