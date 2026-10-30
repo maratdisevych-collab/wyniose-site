@@ -23,10 +23,8 @@
     {%- if t.gloss %}
     <p class="gloss">{{ t.gloss }}</p>
     {%- endif %}
-    <div class="ctas">
-      <a class="btn" href="#wycena"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg><span>{{ t.cta_photo }}<small>{{ t.cta_photo_sub }}</small></span></a>
-      <a class="btn white js-call" href="{{ c.tel or '#kontakt' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg><span>{{ t.cta_call }}<small class="num js-phone">{{ c.phone or '+48 ··· ··· ···' }}</small></span></a>
-    </div>
+    {% include "_ctas.html.j2" %}
+    <p class="from-line">{{ t.hero_prices }} <a href="#ceny">{{ t.hero_prices_link }}</a></p>
     <ul class="facts">
       {%- for f in t.facts %}<li>{{ f }}</li>{% endfor %}
     </ul>
@@ -77,6 +75,22 @@
   </ol>
 </div></section>
 
+<section class="ceny" id="ceny" aria-labelledby="h-ceny"><div class="w">
+  <p class="eyebrow"><span class="plate">zł</span>{{ t.pr_eyebrow }}</p>
+  <h2 id="h-ceny">{{ t.pr_h }}</h2>
+  <p class="lead">{{ t.pr_lead }}</p>
+  <ul class="tags-p">
+    {%- for name, ex, price in t.pr_cards %}
+    <li><b>{{ name }}</b><span class="ex">{{ ex }}</span><span class="pr"><small>{{ t.pr_from }}</small> {{ price }}</span></li>
+    {%- endfor %}
+  </ul>
+  <p class="fine">{{ t.pr_fine }}</p>
+  <div class="after">
+    {%- include "_ctas.html.j2" %}
+    <a class="more-dark" href="{{ root }}cennik/">{{ t.pr_more }} <span aria-hidden="true">→</span></a>
+  </div>
+</div></section>
+
 <section class="svc" id="uslugi" aria-labelledby="h-uslugi"><div class="w">
   <h2 id="h-uslugi">{{ t.svc_h }}</h2>
   <p class="lead">{{ t.svc_lead }}</p>
@@ -88,26 +102,21 @@
   <p class="fine">{{ t.svc_fine }}</p>
 </div></section>
 
-<section class="droga" id="droga" aria-labelledby="h-droga">
-  <div class="w intro">
-    <p class="eyebrow"><span class="plate">IV→P</span>{{ t.dr_eyebrow }}</p>
-    <h2 id="h-droga">{{ t.dr_h }}</h2>
-    <p class="lead">{{ t.dr_lead }}</p>
-  </div>
-  <div class="track"><div class="stage">
-    <div class="view">
-      {{ scene }}
-    </div>
-    <ol class="phases" id="phases">
-      {%- for ph in t.phases %}
-      <li class="phase{% if loop.first %} on{% endif %}"><span class="plate{% if loop.index > 5 %} alt{% endif %}">{{ ph[0] }}</span><h3>{{ ph[1] }}</h3><p{% if ph[3] %} data-review="{{ ph[3] }}"{% endif %}>{{ ph[2] }}</p>{% if loop.last %}<a class="btn sm" href="#wycena">{{ t.dr_cta }}</a>{% endif %}</li>
+<section class="vs" id="pszok" aria-labelledby="h-pszok"><div class="w">
+  <p class="eyebrow"><span class="plate alt">PSZOK</span>{{ t.vs_eyebrow }}</p>
+  <h2 id="h-pszok">{{ t.vs_h }}</h2>
+  <p class="lead">{{ t.vs_lead }}</p>
+  <div class="vs-wrap"><table class="vs-t">
+    <thead><tr><th scope="col"><span class="sr">{{ t.vs_col0 }}</span></th><th scope="col">{{ t.vs_col1 }}</th><th scope="col" class="us">{{ t.vs_col2 }}</th></tr></thead>
+    <tbody>
+      {%- for r in t.vs_rows %}
+      <tr><th scope="row">{{ r[0] }}</th><td data-label="{{ t.vs_col1 }}">{{ r[1] }}</td><td class="us" data-label="{{ t.vs_col2 }}">{{ r[2] }}</td></tr>
       {%- endfor %}
-    </ol>
-    <ol class="rail" aria-label="{{ t.rail_label }}">{% for ph in t.phases %}<li{% if loop.first %} class="on"{% endif %}><button type="button" data-i="{{ loop.index0 }}" aria-label="{{ ph[0] }}: {{ ph[1] }}">{{ ph[0] }}</button></li>{% endfor %}</ol>
-    <p class="hint">{{ t.hint }}</p>
-    <div class="player" hidden><button type="button" aria-label="{{ t.player.play }}"></button><input type="range" min="0" max="1000" value="0" aria-label="{{ t.player.scrub }}"></div>
-  </div></div>
-</section>
+    </tbody>
+  </table></div>
+  <p class="fine">{{ t.vs_fine }} <a href="{{ root }}pszok-wroclaw/">{{ t.vs_more }}</a></p>
+  {% include "_ctas.html.j2" %}
+</div></section>
 
 <section class="order" id="wycena" aria-labelledby="h-wycena"><div class="w">
   <p class="eyebrow"><span class="plate">✓</span>{{ t.or_eyebrow }}</p>
@@ -138,18 +147,17 @@
         <input type="radio" name="fl" id="f{{ loop.index0 }}" value="{{ f[1] }}"{% if loop.index0 >= 3 %} data-high{% endif %}><label for="f{{ loop.index0 }}" aria-label="{{ f[2] }}">{{ f[0] }}</label>
         {%- endfor %}
       </fieldset>
-      <div class="two">
-        <fieldset class="chips"><legend class="lbl">{{ t.lbl_lift }}</legend>
-          {%- for o in t.lift %}
-          <input type="radio" name="lift" id="l{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} data-none{% endif %}><label for="l{{ loop.index }}">{{ o[0] }}</label>
-          {%- endfor %}
-        </fieldset>
+      <fieldset class="chips"><legend class="lbl">{{ t.lbl_lift }}</legend>
+        {%- for o in t.lift %}
+        <input type="radio" name="lift" id="l{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} data-none{% endif %}><label for="l{{ loop.index }}">{{ o[0] }}</label>
+        {%- endfor %}
+      </fieldset>
+      <details class="opt"><summary>{{ t.opt_more }}</summary><div class="opt-b">
         <fieldset class="chips"><legend class="lbl">{{ t.lbl_dem }}</legend>
           {%- for o in t.yesnox %}
           <input type="radio" name="dem" id="d{{ loop.index }}" value="{{ o[1] }}"{% if loop.first %} data-yes{% endif %}><label for="d{{ loop.index }}">{{ o[0] }}</label>
           {%- endfor %}
         </fieldset>
-      </div>
       <div class="two">
         <fieldset class="chips"><legend class="lbl">{{ t.lbl_when }}</legend>
           {%- for o in t.whens %}
@@ -163,6 +171,7 @@
           {%- endfor %}
         </fieldset>
       </div>
+      </div></details>
     </form>
     <div class="preview" aria-live="polite">
       <div class="note">
@@ -183,6 +192,27 @@
     </div>
   </div>
 </div></section>
+
+<section class="droga" id="droga" aria-labelledby="h-droga">
+  <div class="w intro">
+    <p class="eyebrow"><span class="plate">IV→P</span>{{ t.dr_eyebrow }}</p>
+    <h2 id="h-droga">{{ t.dr_h }}</h2>
+    <p class="lead">{{ t.dr_lead }}</p>
+  </div>
+  <div class="track"><div class="stage">
+    <div class="view">
+      {{ scene }}
+    </div>
+    <ol class="phases" id="phases">
+      {%- for ph in t.phases %}
+      <li class="phase{% if loop.first %} on{% endif %}"><span class="plate{% if loop.index > 5 %} alt{% endif %}">{{ ph[0] }}</span><h3>{{ ph[1] }}</h3><p{% if ph[3] %} data-review="{{ ph[3] }}"{% endif %}>{{ ph[2] }}</p>{% if loop.last %}<a class="btn sm" href="#wycena">{{ t.dr_cta }}</a>{% endif %}</li>
+      {%- endfor %}
+    </ol>
+    <ol class="rail" aria-label="{{ t.rail_label }}">{% for ph in t.phases %}<li{% if loop.first %} class="on"{% endif %}><button type="button" data-i="{{ loop.index0 }}" aria-label="{{ ph[0] }}: {{ ph[1] }}">{{ ph[0] }}</button></li>{% endfor %}</ol>
+    <p class="hint">{{ t.hint }}</p>
+    <div class="player" hidden><button type="button" aria-label="{{ t.player.play }}"></button><input type="range" min="0" max="1000" value="0" aria-label="{{ t.player.scrub }}"></div>
+  </div></div>
+</section>
 
 <section class="about" id="o-nas" aria-labelledby="h-onas"><div class="w">
   <div>
@@ -263,7 +293,7 @@
 
 <section class="final" aria-labelledby="h-final"><div class="w">
   <div><h2 id="h-final">{{ t.fin_h }}</h2><p>{{ t.fin_p }}</p></div>
-  <div class="ctas"><a class="btn dark" href="#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
+  <div class="ctas"><a class="btn dark js-wa" href="{{ home }}#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
 </div></section>
 </main>
 

@@ -13,7 +13,7 @@
   <p class="consent-p">{{ t.consent_text }} <a href="{{ c.privacy or '#kontakt' }}">{{ t.consent_more }}</a></p>
   <div class="consent-b"><button type="button" class="btn sm" id="consent-yes">{{ t.consent_yes }}</button><button type="button" class="btn sm white" id="consent-no">{{ t.consent_no }}</button></div>
 </div>
-<div class="dock"><a class="btn" href="{{ home }}#wycena">{{ t.dock_photo }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.dock_call }}</a></div>
+<div class="dock"><a class="btn js-wa" href="{{ home }}#wycena">{{ t.dock_wa }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.dock_call }}</a></div>
 </div>
 {%- if config_inline is not none %}
 <script>window.SITE = {{ config_inline }};</script>

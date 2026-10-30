@@ -325,8 +325,59 @@ footer .w.has-links{grid-template-columns:repeat(4,minmax(0,1fr))}
 .side-links a::after{content:"→";color:var(--lamp)}
 .side-links a:hover{color:var(--lamp-2)}
 
+/* junk-removal version: prices on tags, PSZOK side by side, WhatsApp everywhere */
+.hdr-tel{font:700 16px/1 var(--body);text-decoration:none;color:var(--ink);white-space:nowrap}
+.hdr-tel:hover{text-decoration:underline;text-underline-offset:4px}
+.from-line{margin-top:18px;font:600 17px/1.4 var(--body);color:var(--ink)}
+.from-line a{color:var(--lamp-2);margin-left:4px;white-space:nowrap}
+.ceny{background:var(--plaster);border-top:4px solid var(--ink)}
+.ceny .w{padding-top:clamp(56px,7vw,96px);padding-bottom:clamp(56px,7vw,96px)}
+.tags-p{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:32px 0 0;padding:0;list-style:none}
+.tags-p li{position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:4px;padding:18px 20px 16px 22px;background:var(--paper);border:2px solid var(--ink);border-radius:6px 16px 16px 6px;box-shadow:0 4px 0 var(--ink)}
+.tags-p li::before{content:"";position:absolute;left:-2px;top:-2px;bottom:-2px;width:10px;background:var(--signal);border:2px solid var(--ink);border-radius:6px 0 0 6px}
+.tags-p li::after{content:"";position:absolute;right:16px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--plaster);border:2px solid var(--ink)}
+.tags-p b{font:var(--hw) 22px/1.05 var(--disp);text-transform:uppercase;padding-right:28px}
+.tags-p .ex{font-size:15px;line-height:1.4;color:var(--ink-3)}
+.tags-p .pr{margin-top:8px;font:900 clamp(34px,3.2vw,44px)/1 var(--logo);color:var(--lamp-2);white-space:nowrap}
+.tags-p .pr small{font:600 15px/1 var(--body);color:var(--ink-2);margin-right:2px}
+.ceny .fine{margin-top:22px;font-size:15px;line-height:1.55;color:var(--ink-2);max-width:78ch}
+.after{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}
+.after .ctas{margin-top:22px}
+.more-dark{margin-top:22px;font:700 17px/1.3 var(--body);color:var(--lamp-2);text-underline-offset:4px}
+.vs{background:var(--paper);border-top:4px solid var(--ink)}
+.vs .w{padding-top:clamp(56px,7vw,96px);padding-bottom:clamp(56px,7vw,96px)}
+.vs .plate.alt{background:var(--signal);color:var(--signal-ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.vs .lead{max-width:60ch}
+.vs-wrap{margin-top:30px;overflow-x:auto;border:2px solid var(--ink);border-radius:14px}
+.vs-t{width:100%;border-collapse:collapse;font-size:17px}
+.vs-t th,.vs-t td{padding:14px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.vs-t tbody tr:last-child > *{border-bottom:0}
+.vs-t thead th{font:var(--hw) 22px/1.05 var(--disp);text-transform:uppercase;background:var(--plaster);border-bottom:2px solid var(--ink)}
+.vs-t thead th.us{background:var(--lamp);color:#fff}
+.vs-t tbody th{font-weight:700;width:30%}
+.vs-t td{color:var(--ink-2)}
+.vs-t td.us{background:var(--mint);color:var(--ink);font-weight:600}
+.vs .fine{margin-top:18px;font-size:15px;color:var(--ink-2)}
+.vs .fine a{font-weight:700;color:var(--lamp-2)}
+.opt{border:2px dashed var(--line);border-radius:10px;padding:0 14px}
+.opt summary{cursor:pointer;padding:14px 0;font:600 16px/1.3 var(--body);color:var(--ink-2)}
+.opt[open] summary{border-bottom:1px solid var(--line);margin-bottom:14px}
+.opt-b{display:grid;gap:24px;padding-bottom:16px}
+.ptab{margin-top:14px;overflow-x:auto;border:2px solid var(--ink);border-radius:12px}
+.ptab table{width:100%;border-collapse:collapse;font-size:16px}
+.ptab th,.ptab td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.ptab tbody tr:last-child > *{border-bottom:0}
+.ptab thead th{background:var(--plaster);font:700 13px/1.3 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.ptab tbody th{font-weight:600;color:var(--ink)}
+.ptab td{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700;color:var(--lamp-2)}
+.in-cta{margin-top:20px;padding:18px 20px;border-radius:12px;background:var(--plaster);border-left:6px solid var(--signal)}
+.in-cta p{font-weight:600;color:var(--ink)}
+.in-cta .ctas{margin-top:14px}
+
 @media (max-width: 1180px){
   .top nav ul{gap:14px;font-size:14px}
+  .tags-p{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hdr-tel{display:none}
   .doors{grid-template-columns:repeat(2,minmax(0,1fr))}
   .std{grid-template-columns:repeat(2,minmax(0,1fr))}
   .std li:nth-child(3){padding-left:0;border-left:0}
@@ -376,6 +427,31 @@ footer .w.has-links{grid-template-columns:repeat(4,minmax(0,1fr))}
   .btn{font-size:17px}
   .ctas .btn{width:100%}
   .fact{grid-template-columns:minmax(0,1fr)}
+  .tags-p{gap:10px}
+  /* phones: the buttons come right after the headline, before the lead, so they sit above the cookie banner and the fold */
+  .hero .w > div:first-child{display:flex;flex-direction:column}
+  .hero .eyebrow{order:1}
+  .hero h1{order:2}
+  .hero .ctas{order:3;margin-top:22px}
+  .hero .from-line{order:4}
+  .hero .lead{order:5}
+  .hero .gloss{order:6}
+  .hero .facts{order:7}
+  .hero .hook{display:none}
+  .tags-p li{padding:14px 12px 12px 18px}
+  .tags-p li::after{right:10px;top:12px;width:10px;height:10px}
+  .tags-p b{font-size:18px;padding-right:16px}
+  .tags-p .ex{font-size:13px}
+  .tags-p .pr{font-size:30px}
+  .vs-wrap{border:0;border-radius:0;overflow:visible}
+  .vs-t thead{display:none}
+  .vs-t,.vs-t tbody,.vs-t tr,.vs-t th,.vs-t td{display:block;width:auto}
+  .vs-t tr{border:2px solid var(--ink);border-radius:12px;overflow:hidden;margin-bottom:10px}
+  .vs-t tbody th{width:auto;padding:12px 14px 6px;border-bottom:0;font-size:16px}
+  .vs-t td{display:grid;grid-template-columns:7.2em minmax(0,1fr);gap:10px;padding:8px 14px;border-bottom:0;font-size:16px}
+  .vs-t td::before{content:attr(data-label);font:700 12px/1.4 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  .vs-t td.us{padding-bottom:12px}
+  .vs-t tbody tr:last-child > *{border-bottom:0}
   .phase p{font-size:15px}
   .hook{min-height:2.5em}
   .langs-nav a{min-width:30px}

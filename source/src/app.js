@@ -12,6 +12,11 @@
   var phone = digits(SITE.phone), wa = digits(SITE.whatsapp || SITE.phone).replace(/^\+/, '');
   var phoneText = SITE.phone ? String(SITE.phone) : '+48 ··· ··· ···';
   Array.prototype.forEach.call(document.querySelectorAll('.js-phone'), function(el){ el.textContent = phoneText; });
+  /* every WhatsApp button opens the chat with a short greeting; without a number it stays a link to the job card */
+  if(wa){
+    var waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(L.waText || '');
+    Array.prototype.forEach.call(document.querySelectorAll('.js-wa'), function(a){ a.setAttribute('href', waHref); a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); });
+  }
   if(phone){
     Array.prototype.forEach.call(document.querySelectorAll('.js-call'), function(a){ a.setAttribute('href', 'tel:' + phone); });
     Array.prototype.forEach.call(document.querySelectorAll('.ph-phone'), function(el){ el.hidden = true; });

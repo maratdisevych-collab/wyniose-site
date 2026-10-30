@@ -1,20 +1,27 @@
 # -*- coding: utf-8 -*-
 """Polish service and guide pages (wyniose.pl/<slug>/). Built by build.py with src/subpage.html.j2.
 
-Rules for this copy (see CLAUDE.md): only facts the owner confirmed on the home page, no prices, no reviews,
-no speed promises, no copied competitor text, no keyword stuffing. Each page answers one real question.
+Rules for this copy (see CLAUDE.md): only facts the owner confirmed, prices only from prices.py (owner-approved "from" prices),
+no reviews, no speed promises, no copied competitor text, no keyword stuffing. Each page answers one real question.
 Paragraphs are plain strings (escaped) or Markup when they carry a link written here by hand.
-Blocks: str / Markup = paragraph, {'ul': [...]}, {'ol': [[title, text], ...]}, {'note': ...}."""
+Blocks: str / Markup = paragraph, {'ul': [...]}, {'ol': [[title, text], ...]}, {'note': ...},
+{'table': [[row label, value, ...], ...], 'head': [...]}, {'cta': text above the WhatsApp and call buttons}."""
 from markupsafe import Markup
+from prices import FROM as F, VAN, EXTRA as X, FLOOR_VAN, ZONES, zl
 
 UPDATED = '2026-10-28'
+UPDATED2 = '2026-10-30'
+
+def od(n): return 'od ' + zl(n)
+def plus(n): return '+' + zl(n)
+CENNIK = Markup('Wszystkie ceny i dopłaty: <a href="../cennik/">cennik</a>.')
 
 PHOTOS = {'ul': ['Całe pomieszczenie, z progu.', 'Duże rzeczy z bliska.', 'Klatkę, korytarz lub schody, jeśli są wąskie.',
                  'Im więcej zdjęć, tym dokładniejsza wycena.']}
 
 PAGES = [
     dict(
-        slug='oproznianie-piwnic-strychow-garazy', kind='service', updated=UPDATED,
+        slug='oproznianie-piwnic-strychow-garazy', kind='service', updated=UPDATED2,
         title='Opróżnianie piwnic, strychów i garaży Wrocław | Wyniosę',
         desc='Opróżniamy piwnice, komórki lokatorskie, strychy i garaże we Wrocławiu i do 70 km. Wynosimy, rozkręcamy, wywozimy. Wycena po zdjęciach za darmo.',
         crumb='Piwnice, strychy i garaże', service_type='Opróżnianie piwnic, strychów i garaży',
@@ -37,12 +44,14 @@ PAGES = [
                 'Na strychu trudne jest zwykle zejście: strome schody, właz, wąski korytarz. W garażu problemem jest ilość, bo przez lata trafia tam wszystko, co nie zmieściło się w mieszkaniu. W obu przypadkach pracujemy tak samo: wynosimy, ładujemy do busa, segregujemy i oddajemy do PSZOK lub do recyklingu.',
             ]),
             dict(h='Ile kosztuje opróżnienie piwnicy?', body=[
-                'Nie mamy cennika z góry. Dwie piwnice o tej samej powierzchni mogą się bardzo różnić ilością rzeczy. Na cenę wpływa to, ile jest do wyniesienia, czy trzeba rozkręcać meble, jak daleko jest do busa i jakie są schody.',
+                {'table': [['Piwnica lub komórka lokatorska', od(F['cellar'])], ['Garaż', od(F['garage'])], ['Pojedyncza rzecz, np. rower albo szafka', od(F['item'])]], 'head': ['Co', 'Cena']},
+                'Dwie piwnice o tej samej powierzchni mogą się bardzo różnić ilością rzeczy. Na cenę wpływa to, ile jest do wyniesienia, czy trzeba rozkręcać meble, jak daleko jest do busa i jakie są schody. Strych wychodzi zwykle trochę drożej, bo zejście jest trudniejsze.',
                 'Wstępną cenę podajemy po zdjęciach. Ostateczną potwierdzamy na miejscu, zanim zaczniemy. Jakie zdjęcia wysłać:',
-                PHOTOS,
+                PHOTOS, CENNIK,
             ]),
-            dict(h='Minimalne zlecenie', body=[
-                'Przyjeżdżamy, gdy rzeczy jest mniej więcej pół pokoju. Jeśli nie wiesz, czy Twoja piwnica albo komórka się kwalifikuje, wyślij zdjęcia. Powiemy wprost.',
+            dict(h='Nawet jedna rzecz', body=[
+                'Wywieziemy też pojedyncze rzeczy, na przykład stary rower, szafkę albo materac. Zabieramy je przy okazji innych zleceń w okolicy, termin ustalamy razem.',
+                {'cta': 'Wyślij zdjęcia piwnicy, garażu albo strychu.'},
             ]),
         ],
         faq=[
@@ -55,7 +64,7 @@ PAGES = [
         related=['wywoz-mebli-wroclaw', 'oproznianie-mieszkania-po-zmarlym', 'dla-firm', 'obszar-dzialania'],
     ),
     dict(
-        slug='oproznianie-mieszkania-po-zmarlym', kind='service', updated=UPDATED,
+        slug='oproznianie-mieszkania-po-zmarlym', kind='service', updated=UPDATED2,
         title='Opróżnianie mieszkania po zmarłym Wrocław | Wyniosę',
         desc='Opróżniamy mieszkania po bliskich we Wrocławiu i okolicach. Bez pośpiechu i z szacunkiem. Dokumenty i pamiątki odkładamy dla rodziny. Nie musisz być na miejscu.',
         crumb='Mieszkania po bliskich', service_type='Opróżnianie mieszkania po zmarłym',
@@ -83,13 +92,14 @@ PAGES = [
                 {'note': 'Warto pamiętać: zanim zlecisz opróżnienie, upewnij się, że możesz dysponować mieszkaniem i rzeczami, na przykład jako spadkobierca albo w porozumieniu z pozostałymi spadkobiercami lub zarządcą.'},
             ]),
             dict(h='Ile to kosztuje', body=[
+                {'table': [['Kawalerka', od(F['studio'])], ['Mieszkanie dwupokojowe', od(F['flat'])], ['Mieszkanie trzypokojowe', od(F['flat3'])], ['Dom', od(F['house'])]], 'head': ['Co', 'Cena']},
                 'Cena zależy od ilości rzeczy, piętra, windy i tego, czy trzeba rozkręcać meble. Wstępną cenę podajemy po zdjęciach, ostateczną potwierdzamy na miejscu, zanim zaczniemy. Wycena jest za darmo.',
-                'Płacisz gotówką, BLIK-iem albo przelewem. Wystawiamy fakturę bez VAT.',
+                'Płacisz gotówką, BLIK-iem albo przelewem. Wystawiamy fakturę bez VAT.', CENNIK,
             ]),
         ],
         faq=[
             ['Czy ktoś z rodziny musi być na miejscu?', 'Nie. Klucze ustalamy przy wycenie, a po robocie wysyłamy zdjęcia pustego mieszkania.'],
-            ['Czy możecie opróżnić tylko część mieszkania?', 'Tak. Wskaż, co zostaje, a co wynosimy. Minimum to mniej więcej pół pokoju rzeczy.'],
+            ['Czy możecie opróżnić tylko część mieszkania?', 'Tak. Wskaż, co zostaje, a co wynosimy. Wyniesiemy nawet pojedyncze rzeczy.'],
             ['Co się dzieje z meblami i rzeczami?', 'Segregujemy je i oddajemy do PSZOK lub do recyklingu. Nic nie zostaje pod śmietnikiem.'],
             ['Zabierzecie też rzeczy z piwnicy i komórki?', 'Tak, mogą być częścią tego samego zlecenia.'],
             ['Przyjedziecie obejrzeć mieszkanie przed wyceną?', 'Tak, za darmo, jeśli zdjęcia nie wystarczą.'],
@@ -97,14 +107,14 @@ PAGES = [
         related=['oproznianie-piwnic-strychow-garazy', 'wywoz-mebli-wroclaw', 'obszar-dzialania', 'jak-pozbyc-sie-starych-mebli-wroclaw'],
     ),
     dict(
-        slug='wywoz-mebli-wroclaw', kind='service', updated=UPDATED,
+        slug='wywoz-mebli-wroclaw', kind='service', updated=UPDATED2,
         title='Wywóz starych mebli i AGD Wrocław | Wyniosę',
-        desc='Wynosimy i wywozimy stare meble i AGD we Wrocławiu: szafy, meblościanki, wersalki, pralki, lodówki. Rozkręcamy, znosimy z każdego piętra. Od pół pokoju rzeczy.',
+        desc='Wynosimy i wywozimy stare meble i AGD we Wrocławiu: szafy, meblościanki, wersalki, pralki, lodówki. Rozkręcamy, znosimy z każdego piętra. Jeden mebel od 270 zł.',
         crumb='Wywóz mebli i AGD', service_type='Wywóz starych mebli i AGD',
         plate='IV', eyebrow='Meble i AGD · z każdego piętra',
         h1a='Wywóz starych mebli', h1b='i AGD we Wrocławiu',
         lead='Szafa, której nikt nie zniesie z czwartego piętra. Meblościanka, która nie przejdzie przez drzwi. Rozkręcamy, znosimy, ładujemy do busa i wywozimy, razem z resztą rzeczy z mieszkania, piwnicy albo biura.',
-        facts=['Własny bus', 'Rozkręcamy meble', 'Każde piętro, także bez windy', 'Do 70 km od Wrocławia'],
+        facts=['Nawet jeden mebel', 'Rozkręcamy meble', 'Każde piętro, także bez windy', 'Do 70 km od Wrocławia'],
         sections=[
             dict(h='Co wywozimy', body=[
                 {'ul': ['Szafy, meblościanki, komody, regały.', 'Wersalki, kanapy, fotele, łóżka i materace.',
@@ -113,20 +123,23 @@ PAGES = [
             dict(h='Rozkręcamy i znosimy', body=[
                 'Co nie przejdzie przez drzwi albo zakręt klatki, rozkręcamy na miejscu. Schodzimy z każdego piętra, także bez windy. Piętro i brak windy uwzględniamy w wycenie od razu. Przy dużych meblach w razie potrzeby zabezpieczamy narożniki i poręcze.',
             ]),
-            dict(h='Od jakiej ilości przyjeżdżamy', body=[
-                'Meble wywozimy przy opróżnianiu: od mniej więcej pół pokoju rzeczy w górę. Pojedynczego mebla, na przykład jednej kanapy albo jednej szafy, nie wywozimy.',
-                Markup('Przy jednej kanapie najtaniej skorzystać z miejskiego odbioru gabarytów albo z PSZOK. Jak to zrobić we Wrocławiu, opisaliśmy w poradniku <a href="../jak-pozbyc-sie-starych-mebli-wroclaw/">Jak pozbyć się starych mebli we Wrocławiu</a>.'),
+            dict(h='Nawet jeden mebel', body=[
+                'Wywieziemy jedną kanapę, jedną szafę albo jedną lodówkę. Pojedyncze rzeczy zabieramy przy okazji innych zleceń w okolicy, termin ustalamy razem. Jeśli zależy Ci na konkretnym dniu, przyjedziemy osobno.',
+                {'table': [['Fotel, materac, szafka', od(F['item'])], ['Lodówka, pralka, kuchenka', od(F['appliance'])], ['Kanapa, łóżko, szafa w całości, stół', od(F['furniture'])],
+                           ['Szafa do rozkręcenia', od(320)], ['Meblościanka lub narożnik do rozkręcenia', od(460)], ['Każdy kolejny mebel z tego samego adresu', plus(X['next_item'])],
+                           ['Osobny przyjazd w dniu, który wybierzesz', od(F['solo'])], ['Piętro bez windy', plus(X['floor_item']) + ' za piętro']], 'head': ['Co', 'Cena']},
+                Markup('Masz samochód i siłę? Jedną kanapę możesz za darmo oddać w PSZOK albo wystawić do osiedlowego kontenera na gabaryty. Jak to zrobić, opisaliśmy w poradniku <a href="../jak-pozbyc-sie-starych-mebli-wroclaw/">Jak pozbyć się starych mebli we Wrocławiu</a>.'),
             ]),
             dict(h='Dokąd trafiają meble', body=[
                 'Nie pod wiatę i nie do lasu. Meble, elektroodpady, papier i resztę segregujemy, a potem oddajemy do PSZOK lub do recyklingu. Za gabaryty zostawione przy śmietniku grozi mandat. U nas to nie Twój problem.',
             ]),
             dict(h='Ile kosztuje wywóz mebli', body=[
-                'Cena zależy od ilości mebli i rzeczy, piętra, windy i demontażu. Nie mamy cennika z góry: wstępną cenę podajemy po zdjęciach, ostateczną potwierdzamy na miejscu, zanim zaczniemy. Wycena jest za darmo. Jakie zdjęcia wysłać:',
-                PHOTOS,
+                'Cena zależy od ilości mebli i rzeczy, piętra, windy i demontażu. Ceny w tabeli wyżej są cenami od. Wstępną cenę podajemy po zdjęciach, ostateczną potwierdzamy na miejscu, zanim zaczniemy. Wycena jest za darmo. Jakie zdjęcia wysłać:',
+                PHOTOS, CENNIK, {'cta': 'Wyślij zdjęcia mebli, a podamy cenę.'},
             ]),
         ],
         faq=[
-            ['Wywieziecie jedną kanapę?', 'Nie, pojedynczych mebli nie wywozimy. Minimum to mniej więcej pół pokoju rzeczy. Jedną kanapę najtaniej oddać w miejskim odbiorze gabarytów albo w PSZOK.'],
+            ['Wywieziecie jedną kanapę?', f'Tak, od {zl(F["furniture"])}. Zabieramy ją przy okazji innych zleceń w okolicy albo osobnym przyjazdem w wybranym dniu, od {zl(F["solo"])}.'],
             ['Rozkręcacie meble na miejscu?', 'Tak, jeśli nie przechodzą przez drzwi albo klatkę.'],
             ['Zabieracie lodówki i pralki?', 'Tak. Duże AGD wynosimy i oddajemy osobno, jako elektroodpady.'],
             ['Czy muszę być na miejscu?', 'Nie. Klucze ustalamy przy wycenie, a po robocie wysyłamy zdjęcia pustego miejsca.'],
@@ -135,7 +148,7 @@ PAGES = [
         related=['jak-pozbyc-sie-starych-mebli-wroclaw', 'oproznianie-piwnic-strychow-garazy', 'oproznianie-mieszkania-po-zmarlym', 'dla-firm'],
     ),
     dict(
-        slug='dla-firm', kind='service', updated=UPDATED,
+        slug='dla-firm', kind='service', updated=UPDATED2,
         title='Opróżnianie biur i lokali Wrocław, dla firm | Wyniosę',
         desc='Opróżniamy biura, lokale usługowe i mieszkania na wynajem we Wrocławiu i do 70 km. Dla właścicieli, zarządców i wspólnot. Jedna wycena, faktura bez VAT.',
         crumb='Dla firm i zarządców', service_type='Opróżnianie biur i lokali',
@@ -158,6 +171,7 @@ PAGES = [
             ]),
             dict(h='Rozliczenie', body=[
                 'Cenę uzgadniamy przed rozpoczęciem pracy: wstępną po zdjęciach, ostateczną na miejscu, zanim zaczniemy. Wystawiamy fakturę bez VAT. Płatność przelewem, BLIK-iem albo gotówką.',
+                f'Pół busa wyposażenia biura kosztuje od {zl(F["office"])}. Odpadów z działalności firm PSZOK nie przyjmuje, więc oddajemy je do uprawnionego punktu odbioru, a ten koszt jest już w cenie.', CENNIK,
             ]),
             dict(h='Czego nie zabieramy', body=[
                 'Azbestu i odpadów medycznych. Farby, chemię, gruz i opony bierzemy tylko po wcześniejszym uzgodnieniu.',
@@ -173,7 +187,7 @@ PAGES = [
         related=['oproznianie-piwnic-strychow-garazy', 'wywoz-mebli-wroclaw', 'obszar-dzialania', 'oproznianie-mieszkania-po-zmarlym'],
     ),
     dict(
-        slug='obszar-dzialania', kind='area', updated=UPDATED,
+        slug='obszar-dzialania', kind='area', updated=UPDATED2,
         title='Wrocław i okolice do 70 km: obszar działania | Wyniosę',
         desc='Opróżniamy mieszkania, piwnice i biura w całym Wrocławiu i w miejscowościach do około 70 km od miasta: Oława, Siechnice, Kąty Wrocławskie, Trzebnica, Oleśnica.',
         crumb='Obszar działania', service_type='Opróżnianie mieszkań i wywóz rzeczy',
@@ -200,11 +214,13 @@ PAGES = [
             ]),
             dict(h='Jak zamówić poza Wrocławiem', body=[
                 'Tak samo jak w mieście. Wyślij zdjęcia i dopisz miejscowość. Wstępną cenę podajemy po zdjęciach, ostateczną potwierdzamy na miejscu, zanim zaczniemy. Jeśli zdjęcia nie wystarczą, przyjedziemy obejrzeć miejsce za darmo.',
+                'Do ceny dochodzi dopłata za dojazd, liczona od granicy Wrocławia:',
+                {'table': [[f'do {km} km', plus(p)] for km, p in ZONES], 'head': ['Odległość od granicy Wrocławia', 'Dopłata']},
             ]),
             dict(h='Co robimy na miejscu', body=[
                 Markup('Opróżniamy mieszkania i domy, <a href="../oproznianie-piwnic-strychow-garazy/">piwnice, strychy i garaże</a>, '
                        '<a href="../dla-firm/">biura i lokale</a>, <a href="../oproznianie-mieszkania-po-zmarlym/">mieszkania po bliskich</a>. '
-                       'Wywozimy <a href="../wywoz-mebli-wroclaw/">stare meble i AGD</a>. Minimum to mniej więcej pół pokoju rzeczy.'),
+                       'Wywozimy <a href="../wywoz-mebli-wroclaw/">stare meble i AGD</a> i <a href="../wywoz-gratow-wroclaw/">graty</a>, od jednej rzeczy.'),
             ]),
         ],
         faq=[
@@ -214,7 +230,7 @@ PAGES = [
         related=['oproznianie-piwnic-strychow-garazy', 'wywoz-mebli-wroclaw', 'oproznianie-mieszkania-po-zmarlym', 'dla-firm'],
     ),
     dict(
-        slug='jak-pozbyc-sie-starych-mebli-wroclaw', kind='article', updated=UPDATED, published=UPDATED,
+        slug='jak-pozbyc-sie-starych-mebli-wroclaw', kind='article', updated=UPDATED2, published=UPDATED,
         title='Jak pozbyć się starych mebli we Wrocławiu | Wyniosę',
         desc='Kontener na gabaryty, PSZOK, oddanie albo firma. Jak legalnie pozbyć się starej kanapy, szafy czy lodówki we Wrocławiu i kiedy który sposób ma sens.',
         crumb='Poradnik: stare meble', service_type='',
@@ -243,7 +259,7 @@ PAGES = [
                 {'ul': ['opróżniasz całe mieszkanie, piwnicę, strych albo garaż;', 'mieszkasz wysoko, bez windy, a meble trzeba rozkręcić;',
                         'nie masz samochodu, którym zawieziesz rzeczy do PSZOK;', 'goni Cię termin: sprzedaż mieszkania, oddanie kluczy, nowy najemca;',
                         'mieszkanie jest po bliskiej osobie, a rodzina mieszka daleko.']},
-                Markup('Wtedy wynosimy, rozkręcamy, ładujemy i wywozimy, od mniej więcej pół pokoju rzeczy w górę. Pojedynczego mebla nie wywozimy, więc przy jednej kanapie lepiej skorzystać ze sposobu 1 albo 2. Więcej: <a href="../wywoz-mebli-wroclaw/">wywóz mebli i AGD</a>.'),
+                Markup(f'Wtedy wynosimy, rozkręcamy, ładujemy i wywozimy, od jednej rzeczy do całego mieszkania. Jedną kanapę wywieziemy od {zl(F["furniture"])}. Jeśli jednak masz auto i siłę, sposób 2 jest za darmo. Więcej: <a href="../wywoz-mebli-wroclaw/">wywóz mebli i AGD</a> i <a href="../cennik/">cennik</a>.'),
             ]),
             dict(h='Czego nie robić', body=[
                 'Nie zostawiaj mebli przy śmietniku poza terminem odbioru ani w lesie. Wystawianie gabarytów w miejscu, które nie jest do tego przeznaczone, jest niezgodne z przepisami i grozi mandatem.',
@@ -253,13 +269,209 @@ PAGES = [
             ['Czy odbiór gabarytów we Wrocławiu jest płatny?', 'Dla mieszkańców nie. Odbiór z osiedlowych kontenerów jest w ramach opłaty za śmieci, a PSZOK przyjmuje odpady od mieszkańców bezpłatnie.'],
             ['Gdzie oddać starą lodówkę albo pralkę?', 'To elektroodpad, więc nie do kontenera na gabaryty. Oddaj ją w PSZOK albo w sklepie przy zakupie nowego sprzętu tego samego rodzaju.'],
             ['Co zrobić, gdy kontener na gabaryty jest pełny?', 'Według informacji miasta można to zgłosić firmie podanej na kontenerze albo Ekosystemowi. Rzeczy, które się nie zmieściły, można postawić obok pełnego kontenera.'],
-            ['Czy wywieziecie jedną szafę?', 'Nie. Przyjeżdżamy od mniej więcej pół pokoju rzeczy. Przy jednej szafie lepszy będzie kontener na gabaryty albo PSZOK.'],
+            ['Czy wywieziecie jedną szafę?', f'Tak, od {zl(F["furniture"])}, a szafę do rozkręcenia od {zl(320)}. Jeśli wolisz za darmo, zostaje kontener na gabaryty albo PSZOK.'],
         ],
         sources=[['Ekosystem: odpady wielkogabarytowe', 'https://ekosystem.wroc.pl/segregacja-odpadow/odpady-wielkogabarytowe/'],
                  ['Ekosystem: PSZOK', 'https://ekosystem.wroc.pl/segregacja-odpadow/pszok/'],
                  ['Harmonogram odbioru gabarytów', 'https://gabaryty.ekosystem.wroc.pl/'],
                  ['wroclaw.pl: Gabaryty. Gdzie, kiedy i jak możemy je wyrzucić', 'https://www.wroclaw.pl/zielony-wroclaw/gabaryty-sprawa-wielkiej-wagi-gdzie-kiedy-i-jak-mozemy-je-wyrzucic-zasady']],
         related=['wywoz-mebli-wroclaw', 'oproznianie-piwnic-strychow-garazy', 'oproznianie-mieszkania-po-zmarlym', 'obszar-dzialania'],
+    ),
+    dict(
+        slug='wywoz-gratow-wroclaw', kind='service', updated=UPDATED2,
+        title='Wywóz gratów i rzeczy Wrocław, od 190 zł | Wyniosę',
+        desc='Wywozimy graty, stare rzeczy i odpady wielkogabarytowe we Wrocławiu i do 70 km: od jednej rzeczy do całego mieszkania. Znosimy z każdego piętra i wozimy do PSZOK.',
+        crumb='Wywóz gratów', service_type='Wywóz gratów i rzeczy',
+        plate='', eyebrow='Wywóz gratów · Wrocław i okolice',
+        h1a='Wywóz gratów i rzeczy', h1b='we Wrocławiu',
+        lead='Stara kanapa na balkonie, kartony w przedpokoju, rower w piwnicy, którego nikt nie używa. Zabieramy graty od jednej rzeczy do całego mieszkania: znosimy z każdego piętra, ładujemy do busa i wieziemy do PSZOK lub do recyklingu.',
+        facts=['Od ' + zl(F['item']), 'Od jednej rzeczy', 'Każde piętro', 'Do 70 km od Wrocławia'],
+        sections=[
+            dict(h='Co zabieramy', body=[
+                {'ul': ['Meble: kanapy, szafy, łóżka, stoły, krzesła, fotele.', 'AGD i RTV: lodówki, pralki, kuchenki, telewizory.',
+                        'Materace, dywany i wykładziny.', 'Kartony, książki, ubrania, zabawki, słoiki.',
+                        'Rowery, wózki, sprzęt sportowy, meble ogrodowe.', 'Opony, deski, drzwi i gruz w workach, po wcześniejszym uzgodnieniu.']},
+                'Nie zabieramy azbestu, odpadów medycznych, butli gazowych, gaśnic ani chemii bez etykiet. Tych rzeczy nie przyjmuje też PSZOK.',
+            ]),
+            dict(h='Jak to działa', body=[
+                {'ol': [['Zdjęcia.', 'Wysyłasz zdjęcia na WhatsApp albo dzwonisz. Jeśli zdjęcia nie wystarczą, przyjedziemy obejrzeć za darmo.'],
+                        ['Cena i termin.', 'Mówimy, ile to kosztuje i kiedy możemy przyjechać. Cenę potwierdzamy, zanim zaczniemy.'],
+                        ['Wynosimy.', 'Znosimy z każdego piętra, rozkręcamy, co trzeba, ładujemy do busa.'],
+                        ['Oddajemy.', 'Segregujemy i oddajemy wszystko do PSZOK lub do recyklingu. Nic nie zostaje pod wiatą.']]},
+            ]),
+            dict(h='Ile kosztuje wywóz gratów', body=[
+                {'table': [['Pojedyncza rzecz: fotel, materac, szafka, dywan', od(F['item'])], ['Lodówka, pralka, kuchenka', od(F['appliance'])],
+                           ['Duży mebel: kanapa, szafa, łóżko', od(F['furniture'])], ['Pokój, ok. 4 m³ rzeczy', od(F['room'])],
+                           ['Pół busa, ok. 8 m³', od(1050)], ['Kawalerka', od(F['studio'])]], 'head': ['Co', 'Cena']},
+                'To ceny od, dla Wrocławia, rzeczy gotowych do wyniesienia, parteru albo windy. Dopłaty: piętro bez windy, demontaż mebli, pakowanie drobnych rzeczy, dojazd poza Wrocław.',
+                CENNIK,
+            ]),
+            dict(h='Sam do PSZOK czy z nami?', body=[
+                'Mieszkańcy Wrocławia oddają odpady w PSZOK bez opłat. Trzeba je tylko samemu wynieść, przewieźć własnym autem i rozładować do właściwych kontenerów, w godzinach otwarcia punktu. Jeśli masz samochód, czas i siłę, to najtańszy sposób.',
+                Markup('Jeśli nie, robimy to za Ciebie i i tak wieziemy rzeczy do PSZOK lub do recyklingu. Adresy, godziny i zasady punktów: <a href="../pszok-wroclaw/">PSZOK we Wrocławiu</a>.'),
+                {'cta': 'Wyślij zdjęcia gratów, a podamy cenę.'},
+            ]),
+        ],
+        faq=[
+            ['Wywieziecie jedną rzecz?', f'Tak, od {zl(F["item"])}. Pojedyncze rzeczy zabieramy przy okazji innych zleceń w okolicy, termin ustalamy razem. Osobny przyjazd w dniu, który wybierzesz, kosztuje od {zl(F["solo"])}.'],
+            ['Czy muszę wszystko spakować?', f'Nie. Drobne rzeczy możemy spakować za Ciebie, za dopłatą {zl(X["pack_m3"])} za m³. Wystarczy, że powiesz, co ma zostać.'],
+            ['Zabierzecie gruz po remoncie?', f'Niewielkie ilości w workach, po uzgodnieniu: do 10 worków od {zl(X["rubble_10"])}. Przy więcej niż tonie gruzu taniej wyjdzie kontener.'],
+            ['Czy muszę być na miejscu?', 'Nie. Klucze ustalamy przy wycenie, a po robocie wysyłamy zdjęcia pustego miejsca.'],
+            ['Jak można zapłacić?', 'Gotówką, BLIK-iem albo przelewem. Wystawiamy fakturę bez VAT.'],
+        ],
+        related=['cennik', 'wywoz-mebli-wroclaw', 'pszok-wroclaw', 'oproznianie-piwnic-strychow-garazy'],
+    ),
+    dict(
+        slug='cennik', kind='service', updated=UPDATED2,
+        title='Cennik wywozu gratów, mebli i AGD Wrocław | Wyniosę',
+        desc='Ceny wywozu we Wrocławiu: pojedyncze rzeczy od 190 zł, pokój od 700 zł, kawalerka od 1600 zł. Dopłaty za piętro, demontaż i dojazd. Faktura bez VAT.',
+        crumb='Cennik', service_type='Wywóz gratów, mebli i AGD',
+        plate='zł', eyebrow='Cennik · ceny od · faktura bez VAT',
+        h1a='Cennik wywozu', h1b='we Wrocławiu',
+        lead='Ceny od, dla Wrocławia, rzeczy gotowych do wyniesienia, parteru albo windy. Dokładną cenę podajemy po zdjęciach i potwierdzamy, zanim zaczniemy. Płacisz gotówką, BLIK-iem albo przelewem, dostajesz fakturę bez VAT.',
+        facts=['Ceny od', 'Faktura bez VAT', 'Wycena po zdjęciach za darmo'],
+        sections=[
+            dict(h='Pojedyncze rzeczy', body=[
+                'Pojedyncze rzeczy zabieramy przy okazji innych zleceń w okolicy, termin ustalamy razem. Jeśli zależy Ci na konkretnym dniu, przyjedziemy osobno.',
+                {'table': [['Fotel, materac, szafka, dywan', od(F['item'])], ['Lodówka, pralka, kuchenka', od(F['appliance'])],
+                           ['Kanapa, łóżko, szafa w całości, stół', od(F['furniture'])], ['Szafa do rozkręcenia', od(320)],
+                           ['Meblościanka lub narożnik do rozkręcenia', od(460)], ['Każda kolejna rzecz z tego samego adresu', plus(X['next_item'])],
+                           ['Osobny przyjazd w dniu, który wybierzesz', od(F['solo'])]], 'head': ['Co', 'Cena']},
+            ]),
+            dict(h='Większe ilości: część busa', body=[
+                'Przy większej ilości liczymy, ile miejsca rzeczy zajmą w naszym busie. Bus ma około 16 m³ i zabiera do 1,2 tony, więc ciężkie rzeczy, na przykład książki, mogą wymagać drugiego kursu.',
+                {'table': [[name, od(p)] for name, p in VAN] + [['Drugi kurs, gdy rzeczy nie zmieszczą się za pierwszym razem', plus(X['second_trip'])]], 'head': ['Ilość', 'Cena']},
+            ]),
+            dict(h='Mieszkania, domy, piwnice', body=[
+                'Orientacyjne ceny za typową ilość rzeczy. Dokładną cenę policzymy po zdjęciach.',
+                {'table': [['Pokój', od(F['room'])], ['Piwnica lub komórka lokatorska', od(F['cellar'])], ['Garaż lub strych', od(F['garage'])],
+                           ['Kawalerka', od(F['studio'])], ['Mieszkanie dwupokojowe', od(F['flat'])], ['Mieszkanie trzypokojowe', od(F['flat3'])],
+                           ['Dom', od(F['house'])], ['Biuro lub lokal, pół busa', od(F['office'])]], 'head': ['Co', 'Cena']},
+                'Biura i lokale są droższe, bo odpadów z działalności firm PSZOK nie przyjmuje. Oddajemy je do uprawnionego punktu odbioru, a ten koszt jest w cenie.',
+            ]),
+            dict(h='Dopłaty', body=[
+                {'table': [['Piętro bez windy, pojedyncza rzecz', plus(X['floor_item']) + ' za piętro']] + [[f'Piętro bez windy, {n}', plus(p) + ' za piętro'] for n, p in FLOOR_VAN] +
+                          [['Rozkręcenie dużego mebla', plus(X['dismantle']) + ' za sztukę'], ['Pakowanie drobnych rzeczy przez nas', plus(X['pack_m3']) + ' za m³'],
+                           ['Wieczór, niedziela albo święto', '+' + str(X['evening_pct']) + '%']], 'head': ['Za co', 'Dopłata']},
+            ]),
+            dict(h='Dojazd poza Wrocław', body=[
+                'Pracujemy do około 70 km od Wrocławia. Dopłatę liczymy od granicy miasta.',
+                {'table': [[f'do {km} km', plus(p)] for km, p in ZONES], 'head': ['Odległość od granicy Wrocławia', 'Dopłata']},
+            ]),
+            dict(h='Gruz i praca na godziny', body=[
+                {'table': [['Gruz w workach do 25 kg, do 10 worków', od(X['rubble_10'])], ['Każdy kolejny worek', plus(X['rubble_bag'])],
+                           ['Ekipa dwóch osób z busem, pierwsza godzina', zl(X['hour_first'])], ['Każda kolejna godzina', zl(X['hour_next'])]], 'head': ['Co', 'Cena']},
+                'Przy więcej niż tonie gruzu taniej wyjdzie kontener. Godzinowo liczymy prace, w których trudno z góry ocenić ilość rzeczy.',
+            ]),
+            dict(h='Od czego zależy cena', body=[
+                {'ul': ['Ile rzeczy jest do wyniesienia.', 'Piętro i to, czy jest winda.', 'Czy meble trzeba rozkręcić.',
+                        'Jak daleko jest od drzwi do busa.', 'Czy to rzeczy z mieszkania, czy z firmy.']},
+                'Wstępną cenę podajemy po zdjęciach, ostateczną potwierdzamy na miejscu, zanim zaczniemy. Wycena jest za darmo.',
+                {'cta': 'Wyślij zdjęcia, a podamy cenę.'},
+            ]),
+        ],
+        faq=[
+            ['Czy wycena jest płatna?', 'Nie. Wycena po zdjęciach i oględziny na miejscu są za darmo.'],
+            ['Kiedy poznam ostateczną cenę?', 'Na miejscu, zanim zaczniemy pracę. Im dokładniejsze zdjęcia i opis, tym dokładniejsza wycena wstępna.'],
+            ['Wystawiacie fakturę?', 'Tak, fakturę bez VAT.'],
+            ['Dlaczego dla firm drożej?', 'Odpadów z działalności firm PSZOK nie przyjmuje, więc oddajemy je do uprawnionego punktu odbioru. Ten koszt jest w cenie.'],
+        ],
+        related=['wywoz-gratow-wroclaw', 'wywoz-mebli-wroclaw', 'oproznianie-mieszkan-wroclaw', 'obszar-dzialania'],
+    ),
+    dict(
+        slug='oproznianie-mieszkan-wroclaw', kind='service', updated=UPDATED2,
+        title='Opróżnianie mieszkań Wrocław, kawalerka od 1600 zł | Wyniosę',
+        desc='Opróżniamy mieszkania i domy we Wrocławiu i do 70 km: rozkręcamy meble, znosimy z każdego piętra, wozimy do PSZOK. Kawalerka od 1600 zł, wycena za darmo.',
+        crumb='Opróżnianie mieszkań', service_type='Opróżnianie mieszkań i domów',
+        plate='IV', eyebrow='Mieszkania i domy · Wrocław i okolice',
+        h1a='Opróżnianie mieszkań', h1b='we Wrocławiu',
+        lead='Przed sprzedażą, po najemcy, przed remontem albo po bliskiej osobie. Opróżniamy całe mieszkanie albo wskazane pokoje, razem z piwnicą i komórką. Rozkręcamy, znosimy, wywozimy i zostawiamy puste miejsce.',
+        facts=['Kawalerka od ' + zl(F['studio']), 'Rozkręcamy meble', 'Każde piętro', 'Nie musisz być na miejscu'],
+        sections=[
+            dict(h='Kiedy opróżnia się mieszkanie', body=[
+                {'ul': ['Przed sprzedażą albo wynajmem.', 'Po najemcach, którzy zostawili meble i rzeczy.', 'Przed remontem.',
+                        'Przy przeprowadzce, gdy stare meble nie jadą z Tobą.']},
+                Markup('Mieszkanie po bliskiej osobie opróżniamy bez pośpiechu, a dokumenty i pamiątki odkładamy dla rodziny. Więcej: <a href="../oproznianie-mieszkania-po-zmarlym/">mieszkania po bliskich</a>.'),
+            ]),
+            dict(h='Jak pracujemy', body=[
+                {'ol': [['Wycena.', 'Po zdjęciach na WhatsApp albo po darmowych oględzinach, jeśli zdjęcia nie wystarczą.'],
+                        ['Ustalenia.', 'Mówisz, co zostaje, a co wynosimy. Ustalamy cenę, termin i klucze.'],
+                        ['Opróżnienie.', 'Rozkręcamy meble, znosimy z każdego piętra, ładujemy do busa.'],
+                        ['Wywóz.', 'Segregujemy i oddajemy wszystko do PSZOK lub do recyklingu.']]},
+                'Sprzątanie po opróżnieniu robimy na życzenie, jako usługę dodatkową.',
+            ]),
+            dict(h='Ile kosztuje opróżnienie mieszkania', body=[
+                {'table': [['Pokój', od(F['room'])], ['Kawalerka', od(F['studio'])], ['Mieszkanie dwupokojowe', od(F['flat'])],
+                           ['Mieszkanie trzypokojowe', od(F['flat3'])], ['Dom', od(F['house'])], ['Piwnica lub komórka', od(F['cellar'])]], 'head': ['Co', 'Cena']},
+                'Ceny od, dla parteru albo windy i typowej ilości rzeczy. Dopłaty: piętro bez windy, demontaż, pakowanie drobnych rzeczy, dojazd poza Wrocław.',
+                CENNIK,
+            ]),
+            dict(h='Dlaczego czasem dwa kursy', body=[
+                'Nasz bus zabiera do 1,2 tony. W mieszkaniu dwupokojowym meble, książki i naczynia ważą zwykle więcej, więc jedziemy dwa razy. W cenach od dla mieszkań drugi kurs jest już uwzględniony.',
+            ]),
+            dict(h='Gdy nie możesz być na miejscu', body=[
+                'Nie musisz przyjeżdżać. Klucze ustalamy przy wycenie, kontakt prowadzimy przez WhatsApp albo telefon, a po robocie wysyłamy zdjęcia pustego mieszkania. Rozmawiamy po polsku, ukraińsku, rosyjsku i angielsku.',
+                {'cta': 'Wyślij zdjęcia mieszkania, a podamy cenę.'},
+            ]),
+        ],
+        faq=[
+            ['Czy opróżnicie tylko część mieszkania?', 'Tak. Wskaż, co zostaje, a co wynosimy. Wyniesiemy nawet pojedyncze rzeczy.'],
+            ['Co z rzeczami, które chcę zachować?', 'Wskaż je przed pracą, zostawimy je na miejscu.'],
+            ['Zabierzecie też rzeczy z piwnicy i komórki?', 'Tak, mogą być częścią tego samego zlecenia.'],
+            ['Posprzątacie po opróżnieniu?', 'Tak, na życzenie, jako usługę dodatkową.'],
+            ['Wystawiacie fakturę?', 'Tak, fakturę bez VAT. Płacisz gotówką, BLIK-iem albo przelewem.'],
+        ],
+        related=['oproznianie-mieszkania-po-zmarlym', 'cennik', 'oproznianie-piwnic-strychow-garazy', 'wywoz-mebli-wroclaw'],
+    ),
+    dict(
+        slug='pszok-wroclaw', kind='article', updated=UPDATED2, published=UPDATED2,
+        title='PSZOK Wrocław: adresy, godziny i co przyjmuje | Wyniosę',
+        desc='PSZOK we Wrocławiu: adresy punktów, godziny, co można oddać za darmo i czego nie. A gdy nie masz auta albo siły, wywieziemy rzeczy za Ciebie, od 190 zł.',
+        crumb='PSZOK we Wrocławiu', service_type='',
+        plate='', eyebrow='Poradnik · stan na 30.10.2026',
+        h1a='PSZOK we Wrocławiu', h1b='adresy, godziny, zasady',
+        lead='PSZOK, czyli Punkt Selektywnego Zbierania Odpadów Komunalnych, przyjmuje od mieszkańców Wrocławia odpady bez opłat. Trzeba je tylko samemu przywieźć i rozładować. Poniżej adresy, godziny i zasady, a na końcu: co zrobić, gdy nie masz jak zrobić tego sam.',
+        facts=[],
+        sections=[
+            dict(h='Adresy i godziny', body=[
+                {'ul': ['ul. Kazimierza Michalczyka 9 (Szczepin): poniedziałek–piątek 8:00–19:00, sobota 8:00–16:00.',
+                        'ul. Szwajcarska 15 (Muchobór Mały): poniedziałek–piątek 8:00–19:00, sobota 8:00–16:00.',
+                        'ul. Legnicka 51–53: poniedziałek–piątek 7:30–15:30.', 'ul. Janowska 51: czasowo zamknięty.']},
+                Markup('Godziny podajemy według strony Ekosystemu z 29.10.2026. Zimą punkty bywają czynne krócej, w niedziele i święta są zamknięte. Przed wyjazdem sprawdź <a href="https://ekosystem.wroc.pl/segregacja-odpadow/pszok/" target="_blank" rel="noopener">aktualne informacje Ekosystemu</a>.'),
+            ]),
+            dict(h='Co można oddać', body=[
+                {'ul': ['Meble i inne odpady wielkogabarytowe.', 'Elektroodpady: lodówki, pralki, telewizory i drobny sprzęt.',
+                        'Opony od samochodów osobowych.', 'Farby, kleje, oleje, baterie i akumulatory.',
+                        'Przeterminowane leki, termometry rtęciowe, świetlówki.', 'Drewno, metal, plastik, papier i tekstylia.',
+                        'Odpady zielone.', 'Niewielkie ilości gruzu z remontu.']},
+            ]),
+            dict(h='Czego PSZOK nie przyjmuje', body=[
+                {'ul': ['Odpadów z działalności firm, na przykład z biura albo warsztatu.', 'Azbestu.', 'Odpadów medycznych i weterynaryjnych.',
+                        'Gaśnic i butli gazowych.', 'Części samochodowych, na przykład zderzaków i silników.', 'Odpadów w ilościach hurtowych.']},
+            ]),
+            dict(h='Zasady na miejscu', body=[
+                {'ul': ['Odpady muszą pochodzić z gospodarstwa domowego.', 'Obsługa nie rozładowuje auta, tylko wskazuje właściwy kontener.',
+                        'Gruz i odpady zielone trzeba wysypać z worków, a worki wrzucić do osobnego kontenera.',
+                        'Przed wyjazdem warto sprawdzić, czy potrzebny kontener jest dostępny.']},
+            ]),
+            dict(h='Gdy PSZOK nie wystarczy', body=[
+                'PSZOK jest za darmo, ale zakłada, że masz samochód, czas i siłę. Jeśli mieszkasz wysoko bez windy, nie masz auta albo rzeczy jest dużo, zrobimy to za Ciebie: wyniesiemy, rozkręcimy, przewieziemy i oddamy do PSZOK lub do recyklingu.',
+                {'table': [['Pojedyncza rzecz', od(F['item'])], ['Kanapa, szafa, łóżko', od(F['furniture'])], ['Lodówka, pralka', od(F['appliance'])],
+                           ['Pokój', od(F['room'])], ['Piwnica lub komórka', od(F['cellar'])]], 'head': ['Co', 'Cena']},
+                CENNIK, {'cta': 'Nie masz jak dowieźć rzeczy do PSZOK? Napisz albo zadzwoń.'},
+            ]),
+        ],
+        faq=[
+            ['Czy PSZOK we Wrocławiu jest płatny?', 'Dla mieszkańców Wrocławia nie. Odpady z gospodarstw domowych przyjmuje bez opłat.'],
+            ['Czy w PSZOK pomogą rozładować auto?', 'Nie. Obsługa wskazuje kontener, a rozładunek jest po Twojej stronie.'],
+            ['Czy przyjmą odpady z biura albo warsztatu?', 'Nie. PSZOK przyjmuje tylko odpady komunalne z gospodarstw domowych.'],
+            ['Co zrobić z jedną kanapą, jeśli nie mam auta?', f'Masz trzy wyjścia: osiedlowy kontener na gabaryty w terminie z harmonogramu Ekosystemu, ktoś z autem albo my. Kanapę wyniesiemy i wywieziemy od {zl(F["furniture"])}.'],
+        ],
+        sources=[['Ekosystem: PSZOK', 'https://ekosystem.wroc.pl/segregacja-odpadow/pszok/'],
+                 ['smiecioplan.pl: PSZOK Wrocław', 'https://smiecioplan.pl/wroclaw/pszok/'],
+                 ['wroclawskiportal.pl: wrocławskie PSZOK-i w liczbach i faktach', 'https://www.wroclawskiportal.pl/wroclawskie-pszok-i-w-liczbach-i-faktach/'],
+                 ['Harmonogram odbioru gabarytów', 'https://gabaryty.ekosystem.wroc.pl/']],
+        related=['wywoz-gratow-wroclaw', 'cennik', 'jak-pozbyc-sie-starych-mebli-wroclaw', 'wywoz-mebli-wroclaw'],
     ),
 ]
 
@@ -273,4 +485,8 @@ LINK_LABEL = {
     'dla-firm': 'Dla firm i zarządców',
     'obszar-dzialania': 'Obszar działania',
     'jak-pozbyc-sie-starych-mebli-wroclaw': 'Poradnik: stare meble',
+    'wywoz-gratow-wroclaw': 'Wywóz gratów',
+    'cennik': 'Cennik',
+    'oproznianie-mieszkan-wroclaw': 'Opróżnianie mieszkań',
+    'pszok-wroclaw': 'PSZOK we Wrocławiu',
 }

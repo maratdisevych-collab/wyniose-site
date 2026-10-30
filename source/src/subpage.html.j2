@@ -10,10 +10,7 @@
   <p class="eyebrow">{% if p.plate %}<span class="plate">{{ p.plate }}</span>{% endif %}{{ p.eyebrow }}</p>
   <h1 id="h1">{{ p.h1a }} <span class="g">{{ p.h1b }}</span></h1>
   <p class="lead">{{ p.lead }}</p>
-  <div class="ctas">
-    <a class="btn" href="{{ home }}#wycena"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg><span>{{ t.cta_photo }}<small>{{ t.cta_photo_sub }}</small></span></a>
-    <a class="btn white js-call" href="{{ c.tel or '#kontakt' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg><span>{{ t.cta_call }}<small class="num js-phone">{{ c.phone or '+48 ··· ··· ···' }}</small></span></a>
-  </div>
+{% include "_ctas.html.j2" %}
   {%- if p.facts %}
   <ul class="facts">
     {%- for f in p.facts %}<li>{{ f }}</li>{% endfor %}
@@ -35,6 +32,13 @@
       <ol class="nsteps">{% for i in b.ol %}<li><b>{{ i[0] }}</b> {{ i[1] }}</li>{% endfor %}</ol>
       {%- elif b.note %}
       <p class="note-box">{{ b.note }}</p>
+      {%- elif b.table %}
+      <div class="ptab"><table>
+        {%- if b.head %}<thead><tr>{% for h in b.head %}<th scope="col">{{ h }}</th>{% endfor %}</tr></thead>{% endif %}
+        <tbody>{% for r in b.table %}<tr><th scope="row">{{ r[0] }}</th>{% for cell in r[1:] %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table></div>
+      {%- elif b.cta %}
+      <div class="in-cta"><p>{{ b.cta }}</p>{% include "_ctas.html.j2" %}</div>
       {%- endif %}
       {%- endfor %}
     </section>
@@ -50,7 +54,7 @@
     <div class="side-card">
       <b>{{ t.or_eyebrow }}</b>
       <ol>{% for s in t.steps %}<li><span>{{ s[0] }}</span> {{ s[1] }}</li>{% endfor %}</ol>
-      <a class="btn sm" href="{{ home }}#wycena">{{ t.cta_photo }}</a>
+      <a class="btn sm js-wa" href="{{ home }}#wycena">{{ t.cta_wa }}</a>
       <p class="side-call">{{ t.call_line }} <a class="js-call num js-phone" href="{{ c.tel or '#kontakt' }}">{{ c.phone or '+48 ··· ··· ···' }}</a></p>
     </div>
     <nav class="side-links" aria-label="{{ t.related_h }}">
@@ -73,7 +77,7 @@
 
 <section class="final" aria-labelledby="h-final"><div class="w">
   <div><h2 id="h-final">{{ t.fin_h }}</h2><p>{{ t.fin_p }}</p></div>
-  <div class="ctas"><a class="btn dark" href="{{ home }}#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
+  <div class="ctas"><a class="btn dark js-wa" href="{{ home }}#wycena">{{ t.fin_btn1 }}</a><a class="btn white js-call" href="{{ c.tel or '#kontakt' }}">{{ t.fin_btn2 }}</a></div>
 </div></section>
 </main>
 
