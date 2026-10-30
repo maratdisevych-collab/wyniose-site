@@ -1,6 +1,6 @@
 # Wyniosę website: rules for agents
 
-Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ten Polish service, price and guide pages listed in `source/pages.py`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
+Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and eleven Polish service, price and guide pages listed in `source/pages.py`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
 
 ## How publishing works
 
@@ -15,7 +15,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ten
 - **Tests:**
   - `tests/consent_test.py`: Consent Mode v2 basic, one conversion per click, no Google requests before consent. Expects 117/117.
   - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan, on every page. Expects 240/240.
-  - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 120/120.
+  - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 130/130.
   - The sandbox cannot reach Google, so gtag.js is stubbed in the tests.
 
 ## Source map
@@ -46,6 +46,8 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ten
 - Everything goes to PSZOK or recycling.
 - Free estimate from photos or on site. The exact price is agreed before work. Published "from" prices live only in `source/prices.py` (approved 2026-10-30); never invent others.
 - Any job size, from a single item: small items ride along with other jobs; a separate trip on the client's day is from the price in `prices.py`. Invoices without VAT. Payment in any form.
+- What prices include (approved 2026-10-30): single-item prices include dismantling (wardrobe 320, wall unit 460); flat prices include typical dismantling and packing of small things; the +100 zł dismantling surcharge applies only to jobs priced by van space. Floors without a lift and travel outside Wrocław are always extra.
+- Logo: `source/static/logo.svg`, `logo-light.svg` and the yellow W icon (favicon, Apple icon, share image) come from the owner's files of 2026-10-30; do not redraw or recolour them.
 - Gas cylinders, fire extinguishers, asbestos and medical waste are not taken.
 - Cleaning after clearance is an optional extra.
 - The van on the site is a drawing; there is no real photo yet.
