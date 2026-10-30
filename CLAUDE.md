@@ -1,6 +1,6 @@
 # Wyniosę website: rules for agents
 
-Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six Polish service and guide pages listed in `source/pages.py`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
+Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ten Polish service, price and guide pages listed in `source/pages.py`). Owner: Marat Maksimovich. Write to him in Russian and address him formally as "Марат Максимович".
 
 ## How publishing works
 
@@ -15,7 +15,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six
 - **Tests:**
   - `tests/consent_test.py`: Consent Mode v2 basic, one conversion per click, no Google requests before consent. Expects 117/117.
   - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan, on every page. Expects 240/240.
-  - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 80/80.
+  - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 120/120.
   - The sandbox cannot reach Google, so gtag.js is stubbed in the tests.
 
 ## Source map
@@ -28,6 +28,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six
   - `app.js`: contacts, job card, WhatsApp message.
   - `stair.js`: the stairwell animation.
   - `consent.js`: cookie banner, Google Ads conversions.
+- **`source/prices.py`:** every published price (home page cards, the price list page, service pages). Approved by the owner on 2026-10-30.
 - **`source/site_config.json`:** phones, e-mail, company data, Google Ads ids. Generates `site/config.js`.
 - **`source/static/polityka-prywatnosci.html`:** the privacy policy, in Polish.
 - **`source/build.py`:**
@@ -43,8 +44,9 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six
   - furniture and junk removal;
   - dismantling, carrying from any floor, loading, transport.
 - Everything goes to PSZOK or recycling.
-- Free estimate from photos or on site. The price depends on the job and is agreed before work. There is no price list.
-- Minimum job is about half a room. Invoices without VAT. Payment in any form.
+- Free estimate from photos or on site. The exact price is agreed before work. Published "from" prices live only in `source/prices.py` (approved 2026-10-30); never invent others.
+- Any job size, from a single item: small items ride along with other jobs; a separate trip on the client's day is from the price in `prices.py`. Invoices without VAT. Payment in any form.
+- Gas cylinders, fire extinguishers, asbestos and medical waste are not taken.
 - Cleaning after clearance is an optional extra.
 - The van on the site is a drawing; there is no real photo yet.
 
@@ -56,7 +58,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six
 **Google Ads**
 - Tag AW-18540345955.
 - Telefon `AW-18540345955/XIrxCOOG3KsdEOP03IhF`: click on any `tel:` link.
-- WhatsApp `AW-18540345955/HsRYCKHHzKsdEOP03IhF`: click on "Wyślij na WhatsApp".
+- WhatsApp `AW-18540345955/HsRYCKHHzKsdEOP03IhF`: click on any WhatsApp button (`wa.me` link), including "Wyślij na WhatsApp" in the job card. Approved 2026-10-30.
 - Both are secondary actions. The primary goal, calls from ads of at least 60 s, lives in Google Ads.
 
 **Consent Mode v2 basic**
@@ -67,7 +69,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and six
 
 ## Never
 
-- Invent prices, reviews, ratings, licences or certificates, or promise "dziś", "w 24 h", "najtaniej" or any speed or price.
+- Invent prices (only `prices.py`), reviews, ratings, licences or certificates, or promise "dziś", "w 24 h", "najtaniej" or any speed.
 - Create doorway pages or stuff keywords. Copy competitors' texts.
 - Touch Google Ads: budget, bids, goals, campaigns. Never click ads; every paid click costs the owner money.
 - Weaken security:
