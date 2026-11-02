@@ -3,9 +3,11 @@
    - Nothing from Google is requested until the visitor agrees. After a refusal nothing is requested at all.
    - Consent defaults (all denied) are queued before any config or event; on consent only the granted
      categories are updated (ad_storage, ad_user_data). ad_personalization and analytics_storage stay denied.
+   - Withdrawal ("Ustawienia cookie" -> "Nie zgadzam się") after the tag was loaded: consent update denied, _gcl cookies
+     removed, then the page reloads, so no Google code keeps running on it.
    - Conversions, secondary actions in Google Ads, one per click, no value, nothing personal attached:
-       Telefon  = a real click on any tel: link (hero, card, final CTA, mobile dock, footer)
-       WhatsApp = a real click on "Wyślij na WhatsApp" (the wa.me link of the job card)
+       Telefon  = a real click on any tel: link (header, hero, cards, final CTA, mobile dock, footer)
+       WhatsApp = a real click on any wa.me link (header, hero, cards, dock, "Wyślij na WhatsApp" in the job card)
      Clicks made before consent are never replayed. Navigation is never delayed or blocked.
    - Copying the job card is a local diagnostic event only (window.__wyDiag), never sent to Google.
    - The primary goal, calls from ads of 60 s or more, is measured inside Google Ads; nothing here.
@@ -18,19 +20,27 @@
   var diag = window.__wyDiag = window.__wyDiag || [];
   function note(type, extra){ var d = {type: type, t: Date.now()}; for(var k in extra) d[k] = extra[k]; diag.push(d); }
 
-  /* keep ad-click parameters (gclid, gbraid, wbraid, utm_*) when switching language, without storing them anywhere,
-     so the tag can still read them from the address if consent is given on the other page */
+  /* keep ad-click parameters (gclid, gbraid, wbraid, gad_*, utm_*) on links to the site's other pages (language switch,
+     menu, service pages), without storing them anywhere, so the tag can still read them from the address if consent is
+     given on a later page. Not done once the visitor has refused. */
   var AD_PARAMS = /^(gclid|gbraid|wbraid|gad_source|gad_campaignid|utm_[a-z]+)$/;
   function adQuery(){
     try { var q = new URLSearchParams(location.search), keep = new URLSearchParams();
       q.forEach(function(v, k){ if(AD_PARAMS.test(k)) keep.append(k, v); }); var s = keep.toString(); return s ? '?' + s : ''; } catch(e){ return ''; }
   }
   var aq = adQuery();
-  if(aq) [].forEach.call(document.querySelectorAll('.langs-nav a'), function(a){ var h = a.getAttribute('href') || ''; if(h.indexOf('?') < 0) a.setAttribute('href', h.replace(/(#.*)?$/, aq + '$1')); });
+  function carryAdParams(){
+    if(!aq) return;
+    [].forEach.call(document.querySelectorAll('a[href]'), function(a){
+      var h = a.getAttribute('href') || '', u;
+      if(!h || h.charAt(0) === '#' || h.indexOf('?') >= 0 || a.hasAttribute('download')) return;
+      try { u = new URL(h, location.href); } catch(e){ return; }
+      if(u.origin !== location.origin || /\.(pdf|png|jpe?g|svg|webp|ico|txt|xml|js|css)$/i.test(u.pathname)) return;
+      a.setAttribute('href', h.replace(/(#.*)?$/, aq + '$1'));
+    });
+  }
 
   window.addEventListener('wyniose:copied', function(){ note('copy_job_card'); });   // diagnostic only
-
-  if(!enabled){ if(banner) banner.hidden = true; if(openBtn) openBtn.hidden = true; window.__consent = {enabled: false}; return; }
 
   var KEY = 'wyniose-consent-v1', MAX_AGE = 365*24*3600*1000;
   function read(){
@@ -38,6 +48,9 @@
       if(v && (v.ads === 'granted' || v.ads === 'denied') && Date.now() - (v.t || 0) < MAX_AGE) return v.ads; } catch(e){}
     return null;
   }
+  if(!enabled || read() !== 'denied') carryAdParams();
+
+  if(!enabled){ if(banner) banner.hidden = true; if(openBtn) openBtn.hidden = true; window.__consent = {enabled: false}; return; }
   function save(state){ try { localStorage.setItem(KEY, JSON.stringify({ads: state, t: Date.now()})); } catch(e){} }
 
   window.dataLayer = window.dataLayer || [];
@@ -68,7 +81,13 @@
     granted = state === 'granted';
     if(fromUser) save(state);
     if(granted){ if(!was) gtag('consent', 'update', {ad_storage: 'granted', ad_user_data: 'granted'}); load(); }
-    else { if(was || loaded) gtag('consent', 'update', {ad_storage: 'denied', ad_user_data: 'denied'}); clearAdCookies(); }
+    else {
+      if(was || loaded) gtag('consent', 'update', {ad_storage: 'denied', ad_user_data: 'denied'});
+      clearAdCookies();
+      /* withdrawal after the tag was loaded on this page: a loaded Google tag keeps its own listeners (automatic events)
+         and would go on sending cookieless pings, which basic mode does not allow; reloading removes it from the page */
+      if(loaded && fromUser){ note('consent', {state: state, by: 'visitor', reload: true}); if(banner) banner.hidden = true; try { location.reload(); } catch(e){} return; }
+    }
     note('consent', {state: state, by: fromUser ? 'visitor' : 'stored'});
     if(banner) banner.hidden = true;
     document.documentElement.classList.remove('consent-open');

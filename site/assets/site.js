@@ -286,15 +286,25 @@
       q.forEach(function(v, k){ if(AD_PARAMS.test(k)) keep.append(k, v); }); var s = keep.toString(); return s ? '?' + s : ''; } catch(e){ return ''; }
   }
   var aq = adQuery();
-  if(aq) [].forEach.call(document.querySelectorAll('.langs-nav a'), function(a){ var h = a.getAttribute('href') || ''; if(h.indexOf('?') < 0) a.setAttribute('href', h.replace(/(#.*)?$/, aq + '$1')); });
+  function carryAdParams(){
+    if(!aq) return;
+    [].forEach.call(document.querySelectorAll('a[href]'), function(a){
+      var h = a.getAttribute('href') || '', u;
+      if(!h || h.charAt(0) === '#' || h.indexOf('?') >= 0 || a.hasAttribute('download')) return;
+      try { u = new URL(h, location.href); } catch(e){ return; }
+      if(u.origin !== location.origin || /\.(pdf|png|jpe?g|svg|webp|ico|txt|xml|js|css)$/i.test(u.pathname)) return;
+      a.setAttribute('href', h.replace(/(#.*)?$/, aq + '$1'));
+    });
+  }
   window.addEventListener('wyniose:copied', function(){ note('copy_job_card'); });
-  if(!enabled){ if(banner) banner.hidden = true; if(openBtn) openBtn.hidden = true; window.__consent = {enabled: false}; return; }
   var KEY = 'wyniose-consent-v1', MAX_AGE = 365*24*3600*1000;
   function read(){
     try { var v = JSON.parse(localStorage.getItem(KEY) || 'null');
       if(v && (v.ads === 'granted' || v.ads === 'denied') && Date.now() - (v.t || 0) < MAX_AGE) return v.ads; } catch(e){}
     return null;
   }
+  if(!enabled || read() !== 'denied') carryAdParams();
+  if(!enabled){ if(banner) banner.hidden = true; if(openBtn) openBtn.hidden = true; window.__consent = {enabled: false}; return; }
   function save(state){ try { localStorage.setItem(KEY, JSON.stringify({ads: state, t: Date.now()})); } catch(e){} }
   window.dataLayer = window.dataLayer || [];
   function gtag(){ window.dataLayer.push(arguments); }
@@ -323,7 +333,11 @@
     granted = state === 'granted';
     if(fromUser) save(state);
     if(granted){ if(!was) gtag('consent', 'update', {ad_storage: 'granted', ad_user_data: 'granted'}); load(); }
-    else { if(was || loaded) gtag('consent', 'update', {ad_storage: 'denied', ad_user_data: 'denied'}); clearAdCookies(); }
+    else {
+      if(was || loaded) gtag('consent', 'update', {ad_storage: 'denied', ad_user_data: 'denied'});
+      clearAdCookies();
+      if(loaded && fromUser){ note('consent', {state: state, by: 'visitor', reload: true}); if(banner) banner.hidden = true; try { location.reload(); } catch(e){} return; }
+    }
     note('consent', {state: state, by: fromUser ? 'visitor' : 'stored'});
     if(banner) banner.hidden = true;
     document.documentElement.classList.remove('consent-open');

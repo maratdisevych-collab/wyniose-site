@@ -261,7 +261,7 @@ for d, _, fs in os.walk(OUT_D):
 G_SCRIPT = "https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com"
 G_IMG = "https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.pl"
 G_CONNECT = G_IMG + " https://ad.doubleclick.net"
-G_FRAME = "https://www.googletagmanager.com https://td.doubleclick.net"
+G_FRAME = "https://www.googletagmanager.com"
 CSP = ("default-src 'none'; script-src 'self' " + ' '.join(sorted(hashes)) + " " + G_SCRIPT + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: " + G_IMG + "; "
        "font-src 'self'; connect-src 'self' " + G_CONNECT + "; frame-src " + G_FRAME + "; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests")
 SEC = [('Content-Security-Policy', CSP), ('Strict-Transport-Security', 'max-age=31536000'), ('X-Content-Type-Options', 'nosniff'),

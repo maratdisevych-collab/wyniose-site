@@ -13,7 +13,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ele
   - confirm contacts, NIP and the cookie banner are still there.
   - If the live site is wrong, fix forward with `git revert` and push again.
 - **Tests:**
-  - `tests/consent_test.py`: Consent Mode v2 basic, one conversion per click, no Google requests before consent. Expects 117/117.
+  - `tests/consent_test.py`: Consent Mode v2 basic on every page with the banner, desktop and phone: no Google requests before consent, refusal, consent, one conversion per click on every visible tel:/WhatsApp CTA, job card, withdrawal with reload, tag blocked or slow. Expects 957/957.
   - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan, on every page. Expects 240/240.
   - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 130/130.
   - The sandbox cannot reach Google, so gtag.js is stubbed in the tests.
@@ -67,7 +67,10 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ele
 - No Google request before consent.
 - Defaults are all denied. On consent, update only ad_storage and ad_user_data.
 - Never replay clicks made before consent. Copying the job card is never sent to Google.
+- Withdrawal after the tag was loaded: consent update denied, `_gcl*` cookies removed, then the page reloads so no Google code keeps running (2026-11-02 measurement fixes).
+- Ad-click parameters (gclid, gbraid, wbraid, gad_*, utm_*) ride along on links to the site's other pages until the visitor refuses; they are never stored.
 - No GA4, no GTM, no enhanced conversions.
+- Google tag settings live in Google Ads (Data manager → Google tag), not in this repo. Expected: automatic event detection (outbound clicks, forms, scrolls, downloads, video, history) off and "Allow user-provided data capabilities" off. The live container is `https://www.googletagmanager.com/gtag/js?id=AW-18540345955`; `__ogt_auto_events` or `__ogt_1p_data_v2` with auto detection on means these settings were switched back on. Report it; never change Google Ads yourself.
 
 ## Never
 
