@@ -9,13 +9,15 @@
        Telefon  = a real click on any tel: link (header, hero, cards, final CTA, mobile dock, footer)
        WhatsApp = a real click on any wa.me link (header, hero, cards, dock, "Wyślij na WhatsApp" in the job card)
      Clicks made before consent are never replayed. Navigation is never delayed or blocked.
+   - Calls from website (optional ads.call): the phone snippet runs in the same tag after consent; see callNumber().
    - Copying the job card is a local diagnostic event only (window.__wyDiag), never sent to Google.
    - The primary goal, calls from ads of 60 s or more, is measured inside Google Ads; nothing here.
-   Config: window.SITE.ads = {id: "AW-…", tel: "AW-…/label", wa: "AW-…/label"}. */
+   Config: window.SITE.ads = {id: "AW-…", tel: "AW-…/label", wa: "AW-…/label", call: "AW-…/label" (optional)}. */
 (function(){
   var SITE = window.SITE || {}, A = SITE.ads || {};
   var ID_OK = /^AW-\d{6,}$/, SEND_OK = /^AW-\d{6,}\/[A-Za-z0-9_-]+$/;
   var enabled = ID_OK.test(A.id || '') && SEND_OK.test(A.tel || '') && SEND_OK.test(A.wa || '') && A.tel !== A.wa;
+  var CALL = enabled && SEND_OK.test(A.call || '') && A.call !== A.tel && A.call !== A.wa && !!SITE.phone;
   var banner = document.getElementById('consent'), openBtn = document.getElementById('consent-open');
   var diag = window.__wyDiag = window.__wyDiag || [];
   function note(type, extra){ var d = {type: type, t: Date.now()}; for(var k in extra) d[k] = extra[k]; diag.push(d); }
@@ -64,15 +66,36 @@
     if(loaded) return; loaded = true;
     gtag('js', new Date());
     gtag('config', A.id);
+    if(CALL) gtag('config', A.call, {phone_conversion_number: String(SITE.phone), phone_conversion_callback: callNumber});
     var s = document.createElement('script');
     s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(A.id);
     s.onerror = function(){ failed = true; note('tag_blocked'); };   // ad blocker or network: the buttons keep working
     document.head.appendChild(s);
   }
+  /* Calls from website: Google answers the config above with a forwarding number only for visitors who came from an ad
+     (support.google.com/google-ads/answer/6095883, callback variant, so the shown and the dialled number change together).
+     Only the call buttons change. The footer ("Telefon / WhatsApp"), the WhatsApp label in the drawing and every wa.me
+     link keep the real number. Google measures the call itself; nothing is timed or sent from here. */
+  function callNumber(formatted, mobile){
+    if(!granted) return;
+    var shown = String(formatted || '').trim(), d = String(mobile || '').replace(/\D/g, ''), dial;
+    if(/^\+/.test(shown)) dial = '+' + shown.replace(/\D/g, '');
+    else if(d.length === 11 && d.indexOf('48') === 0) dial = '+' + d;
+    else if(d.length === 9) dial = '+48' + d;
+    else dial = d;
+    if(!shown || !/^\+?\d{6,15}$/.test(dial)) return;
+    [].forEach.call(document.querySelectorAll('a.js-call'), function(a){
+      if(a.closest('footer')) return;
+      a.setAttribute('href', 'tel:' + dial);
+      if(a.classList.contains('js-phone')) a.textContent = shown;
+      [].forEach.call(a.querySelectorAll('.js-phone'), function(el){ el.textContent = shown; });
+    });
+    note('call_number', {swapped: true});
+  }
   function clearAdCookies(){
     var host = location.hostname, base = host.replace(/^www\./, '');
     document.cookie.split(';').forEach(function(c){
-      var n = c.split('=')[0].trim(); if(!/^(_gcl_|_gac_|FPGCL)/.test(n)) return;
+      var n = c.split('=')[0].trim(); if(!/^(_gcl_|_gac_|FPGCL|gwcc)/.test(n)) return;
       ['', '; domain=' + host, '; domain=.' + base].forEach(function(d){ document.cookie = n + '=; Max-Age=0; path=/' + d; });
     });
   }

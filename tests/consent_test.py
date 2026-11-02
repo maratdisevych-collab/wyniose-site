@@ -13,6 +13,9 @@ Every page that carries the cookie banner is checked on a desktop and a phone vi
      no tag and no conversion afterwards; consenting again works
   E  tag blocked (ad blocker): CTAs still work, failure noted, no page errors
   F  Google slow: CTAs work at once, nothing waits for the tag
+  Calls from website: the phone snippet config is queued only after consent; when Google answers (stubbed for an ad
+     visitor) the call buttons show and dial the forwarding number, while the footer, WhatsApp links and the drawing keep
+     the real number; nothing changes before consent, after refusal or after withdrawal (gwcc removed)
 Google is unreachable from here, so gtag.js is replaced by a stub that behaves like the tag for what we test:
 it reads the dataLayer and fires one image request per config / conversion to Google hosts (allowed by our CSP).
 The stub cannot show what the real Google tag collects on its own (automatic events, user-provided data):
@@ -24,15 +27,17 @@ LAUNCH = dict(args=['--no-sandbox'], **({'executable_path': _CH} if os.path.exis
 
 B = 'http://127.0.0.1:8766/'
 SITE_DIR = os.environ.get('SITE_DIR') or os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site')
-TEL = 'AW-18540345955/XIrxCOOG3KsdEOP03IhF'; WA = 'AW-18540345955/HsRYCKHHzKsdEOP03IhF'
+TEL = 'AW-18540345955/XIrxCOOG3KsdEOP03IhF'; WA = 'AW-18540345955/HsRYCKHHzKsdEOP03IhF'; CALL = 'AW-18540345955/eMUqCIyw8LAdEOP03IhF'
+REAL_TEL, FWD_TEL, FWD_SHOWN = 'tel:+48516721072', 'tel:+48221002030', '+48 22 100 20 30'   # FWD: a made-up forwarding number from the stub
 LABEL = {'tel': TEL, 'wa': WA}
 GOOGLE = ('googletagmanager.com', 'googleadservices.com', 'doubleclick.net', 'google.com', 'google.pl', 'googlesyndication.com', 'google-analytics.com')
-QS = 'utm_source=google&utm_medium=cpc&utm_campaign=wy_test'
+QS = 'utm_source=google&utm_medium=cpc&utm_campaign=wy_test&qa_ad=1'   # qa_ad=1: the stub answers the phone snippet like Google does after an ad click
 CANARY = ('qakanarek', 'qaadres')            # typed into the job card; must never reach Google
 STUB = r"""(function(){ window.__stubLoads = (window.__stubLoads||0) + 1;
  function handle(a){ if(!a || typeof a.length !== 'number') return;
    if(a[0]==='event' && a[1]==='conversion'){ var p = a[2].send_to.split('/'); var i = new Image(); i.src = 'https://www.googleadservices.com/pagead/conversion/' + p[0].slice(3) + '/?label=' + p[1] + '&url=' + encodeURIComponent(location.href); }
-   if(a[0]==='config'){ var j = new Image(); j.src = 'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/' + a[1].slice(3) + '/?stub=1&url=' + encodeURIComponent(location.href); } }
+   if(a[0]==='config'){ var j = new Image(); j.src = 'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/' + a[1].slice(3) + '/?stub=1&url=' + encodeURIComponent(location.href);
+     var o = a[2]; if(o && typeof o.phone_conversion_callback === 'function' && /qa_ad=1/.test(location.search)) setTimeout(function(){ o.phone_conversion_callback('+48 22 100 20 30', '48221002030'); }, 50); } }
  var dl = window.dataLayer = window.dataLayer || []; for(var k=0;k<dl.length;k++) handle(dl[k]);
  var push = dl.push; dl.push = function(x){ handle(x); return push.apply(dl, arguments); }; })();"""
 GIF = bytes.fromhex('47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b')
@@ -45,6 +50,10 @@ window.addEventListener('click', e => { const a = e.target.closest && e.target.c
   window.__hits.push(tel ? 'tel' : 'wa'); window.__blocked.push(e.defaultPrevented); if(tel) e.preventDefault(); }, false);"""
 DL = """() => (window.dataLayer||[]).map(a => { try { const x = Array.prototype.slice.call(a); return JSON.stringify(x[0]==='js' ? ['js'] : x); } catch(e){ return JSON.stringify(a); } })"""
 CONV = """() => (window.dataLayer||[]).filter(a => a[0]==='event' && a[1]==='conversion').map(a => a[2])"""
+NUMBERS = r"""() => ({
+  calls: [...document.querySelectorAll('a.js-call')].map(a => ({footer: !!a.closest('footer'), href: a.getAttribute('href'), text: (a.classList.contains('js-phone') ? a : a.querySelector('.js-phone') || {textContent: ''}).textContent.trim()})),
+  wa: [...document.querySelectorAll('a[href]')].filter(a => /wa\.me|api\.whatsapp/.test(a.href)).map(a => a.href.split('?')[0]),
+  other: [...document.querySelectorAll('.js-phone, .js-phone2')].filter(el => !el.closest('a.js-call')).map(el => el.textContent.trim()) })"""
 CTAS = r"""() => { const out = [];
   document.querySelectorAll('a[href]').forEach((a, i) => { const h = a.getAttribute('href') || '';
     const kind = /^tel:/i.test(h) ? 'tel' : (/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(a.href) ? 'wa' : null); if(!kind) return;
@@ -127,6 +136,8 @@ async def run(b, mob, path):
     check(f'{tag}: A no Google request before a decision', not google(reqs), google(reqs))
     dl = await pg.evaluate(DL)
     check(f'{tag}: A consent default (4 x denied) queued first, no config/event', dl[:1] == ['["consent","default",{"ad_storage":"denied","ad_user_data":"denied","ad_personalization":"denied","analytics_storage":"denied"}]'] and not any('"config"' in x or '"event"' in x for x in dl), dl)
+    nb = await pg.evaluate(NUMBERS)
+    check(f'{tag}: A real phone number everywhere before a decision', all(c['href'] == REAL_TEL for c in nb['calls']), nb['calls'][:3])
     internal = await pg.evaluate(INTERNAL)
     check(f'{tag}: A ad-click parameters carried on every link to another page of the site', internal and all('utm_campaign=wy_test' in h for h in internal), [h for h in internal if 'utm_campaign=wy_test' not in h][:6])
     ctas = await visible_ctas(pg)
@@ -144,6 +155,8 @@ async def run(b, mob, path):
     check(f'{tag}: B after refusal no conversion and no Google request', not await pg.evaluate(CONV) and not google(reqs), google(reqs))
     await goto(pg, url)
     check(f'{tag}: B after refusal + reload: no banner, no Google request', not await pg.is_visible('#consent') and not google(reqs), google(reqs))
+    nb = await pg.evaluate(NUMBERS)
+    check(f'{tag}: B after refusal the real phone number stays', all(c['href'] == REAL_TEL for c in nb['calls']), nb['calls'][:3])
     internal = await pg.evaluate(INTERNAL)
     check(f'{tag}: B after refusal ad-click parameters are not carried to other pages', not any('utm_campaign=wy_test' in h for h in internal if 'hreflang' not in h), [h for h in internal if 'utm_campaign' in h][:4])
     check(f'{tag}: B CTAs never blocked without consent', all(v is False for v in await pg.evaluate('window.__blocked')) or not await pg.evaluate('window.__blocked'))
@@ -162,7 +175,12 @@ async def run(b, mob, path):
     dl = await pg.evaluate(DL)
     upd = [x for x in dl if x.startswith('["consent","update"')]
     check(f'{tag}: C consent update grants only ad_storage + ad_user_data', upd == ['["consent","update",{"ad_storage":"granted","ad_user_data":"granted"}]'], upd)
-    check(f'{tag}: C exactly one config, after default and update', [x for x in dl if '"config"' in x] == ['["config","AW-18540345955"]'] and dl.index('["config","AW-18540345955"]') > dl.index(upd[0]), dl)
+    cfg = [x for x in dl if '"config"' in x]
+    check(f'{tag}: C one tag config and one phone snippet config, after default and update', cfg == ['["config","AW-18540345955"]', '["config","' + CALL + '",{"phone_conversion_number":"+48 516 721 072"}]'] and dl.index(cfg[0]) > dl.index(upd[0]), cfg)
+    await pg.wait_for_timeout(200); nb = await pg.evaluate(NUMBERS)
+    calls_main, calls_foot = [c for c in nb['calls'] if not c['footer']], [c for c in nb['calls'] if c['footer']]
+    check(f'{tag}: C calls from website: call buttons show and dial the forwarding number', calls_main and all(c['href'] == FWD_TEL and c['text'] in ('', FWD_SHOWN) for c in calls_main), calls_main)
+    check(f'{tag}: C calls from website: footer, WhatsApp links and other number labels keep the real numbers', all(c['href'] == REAL_TEL and c['text'] == '+48 516 721 072' for c in calls_foot) and nb['wa'] and all(w == 'https://wa.me/48516721072' for w in nb['wa']) and all(t in ('+48 516 721 072', '+48 791 645 395') for t in nb['other']), nb)
     check(f'{tag}: C click made before consent not replayed', not await pg.evaluate(CONV))
     per = []
     for c in ctas:
@@ -216,7 +234,7 @@ async def run(b, mob, path):
     check(f'{tag}: C no CSP violations / errors', not await pg.evaluate('window.__csp') and not errs, (await pg.evaluate('window.__csp'), errs))
 
     # D. withdrawal
-    await pg.evaluate("document.cookie = '_gcl_au=1.1.test; path=/'")
+    await pg.evaluate("document.cookie = '_gcl_au=1.1.test; path=/'; document.cookie = 'gwcc=%5B%22test%22%5D; path=/'")
     await pg.evaluate("""() => { sessionStorage.removeItem('qa_dl'); const dl = window.dataLayer, push = dl.push;
       dl.push = function(x){ try { const s = JSON.parse(sessionStorage.getItem('qa_dl') || '[]'); s.push(JSON.stringify(Array.prototype.slice.call(x))); sessionStorage.setItem('qa_dl', JSON.stringify(s)); } catch(e){} return push.apply(dl, arguments); }; }""")
     await pg.evaluate("document.getElementById('consent-open').scrollIntoView({block:'center'})")
@@ -230,6 +248,8 @@ async def run(b, mob, path):
     pushed = json.loads(await pg.evaluate("sessionStorage.getItem('qa_dl') || '[]'"))
     check(f'{tag}: D withdrawal pushes consent update denied and removes _gcl cookies', '["consent","update",{"ad_storage":"denied","ad_user_data":"denied"}]' in pushed and '_gcl_au' not in await pg.evaluate('document.cookie'), pushed)
     check(f'{tag}: D withdrawal reloads the page, so the already loaded Google tag stops running', reloaded and not [u for u in reqs[n0:] if 'googletagmanager.com' in u] and await pg.evaluate('document.querySelectorAll("script[src*=googletagmanager]").length') == 0 and not any('"config"' in x for x in await pg.evaluate(DL)), (reloaded, [u for u in reqs[n0:] if 'googletagmanager' in u]))
+    nb = await pg.evaluate(NUMBERS)
+    check(f'{tag}: D after withdrawal the real phone number is back and the gwcc cookie is gone', all(c['href'] == REAL_TEL for c in nb['calls']) and 'gwcc' not in await pg.evaluate('document.cookie'), (nb['calls'][:2], await pg.evaluate('document.cookie')))
     check(f'{tag}: D after withdrawal: banner closed, refusal stored', not await pg.is_visible('#consent') and (await pg.evaluate("JSON.parse(localStorage.getItem('wyniose-consent-v1')).ads")) == 'denied')
     n0, c0 = len(reqs), len(await pg.evaluate(CONV))
     await pg.clock.fast_forward(3100); await click(pg, await first_cta(pg, 'tel'), 200)

@@ -14,6 +14,7 @@ window.SITE = {
   "ads": {
     "id": "AW-18540345955",
     "tel": "AW-18540345955/XIrxCOOG3KsdEOP03IhF",
-    "wa": "AW-18540345955/HsRYCKHHzKsdEOP03IhF"
+    "wa": "AW-18540345955/HsRYCKHHzKsdEOP03IhF",
+    "call": "AW-18540345955/eMUqCIyw8LAdEOP03IhF"
   }
 };

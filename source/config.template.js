@@ -7,7 +7,8 @@
    privacyUrl ссылка на политику конфиденциальности
    privacyDate дата последней правки политики
    ads        Google Ads, работает только после согласия посетителя (баннер cookie):
-              id  = тег AW-…, tel = ярлык «Telefon», wa = ярлык «WhatsApp».
+              id  = тег AW-…, tel = ярлык «Telefon», wa = ярлык «WhatsApp»,
+              call = ярлык «звонки с сайта» (подмена номера на кнопках звонка для пришедших из рекламы), можно оставить "".
               Чтобы выключить измерение совсем, удалите блок ads: баннер тоже исчезнет. */
 window.SITE = {
   phone: "",
@@ -17,5 +18,5 @@ window.SITE = {
   company: {name: "", address: "", nip: "", regon: ""},
   privacyUrl: "/polityka-prywatnosci/",
   privacyDate: "",
-  ads: {id: "", tel: "", wa: ""}
+  ads: {id: "", tel: "", wa: "", call: ""}
 };

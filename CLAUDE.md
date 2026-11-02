@@ -13,7 +13,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ele
   - confirm contacts, NIP and the cookie banner are still there.
   - If the live site is wrong, fix forward with `git revert` and push again.
 - **Tests:**
-  - `tests/consent_test.py`: Consent Mode v2 basic on every page with the banner, desktop and phone: no Google requests before consent, refusal, consent, one conversion per click on every visible tel:/WhatsApp CTA, job card, withdrawal with reload, tag blocked or slow. Expects 957/957.
+  - `tests/consent_test.py`: Consent Mode v2 basic on every page with the banner, desktop and phone: no Google requests before consent, refusal, consent, one conversion per click on every visible tel:/WhatsApp CTA, job card, withdrawal with reload, tag blocked or slow. Calls-from-website number swap. Expects 1087/1087.
   - `tests/security_test.py`: headers, CSP, XSS in the job card, links, framing, secrets scan, on every page. Expects 240/240.
   - `tests/seo_test.py`: static: sitemap pages exist and are indexable, own canonical, one H1, unique titles, descriptions, JSON-LD, internal links and anchors resolve, every page linked from home, no thin pages. Expects 130/130.
   - The sandbox cannot reach Google, so gtag.js is stubbed in the tests.
@@ -62,6 +62,7 @@ Site: https://wyniose.pl (Polish home, `/en/`, `/polityka-prywatnosci/`, and ele
 - Telefon `AW-18540345955/XIrxCOOG3KsdEOP03IhF`: click on any `tel:` link.
 - WhatsApp `AW-18540345955/HsRYCKHHzKsdEOP03IhF`: click on any WhatsApp button (`wa.me` link), including "Wyślij na WhatsApp" in the job card. Approved 2026-10-30.
 - Both are secondary actions. The primary goal, calls from ads of at least 60 s, lives in Google Ads.
+- Calls from website `AW-18540345955/eMUqCIyw8LAdEOP03IhF` (action "Telefon - rozmowa ze strony 60 s", created 2026-11-02, secondary until verified): the phone snippet runs in `consent.js` only after consent, as a second `config` of the same tag with `phone_conversion_number: "+48 516 721 072"` (exactly as shown) and a callback. When Google returns a forwarding number (ad visitors only), the call buttons outside the footer show and dial it. The footer ("Telefon / WhatsApp"), the WhatsApp label in the drawing and every wa.me link always keep +48 516 721 072. Never time calls or send this label as a click event.
 
 **Consent Mode v2 basic**
 - No Google request before consent.

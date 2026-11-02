@@ -277,6 +277,7 @@
   var SITE = window.SITE || {}, A = SITE.ads || {};
   var ID_OK = /^AW-\d{6,}$/, SEND_OK = /^AW-\d{6,}\/[A-Za-z0-9_-]+$/;
   var enabled = ID_OK.test(A.id || '') && SEND_OK.test(A.tel || '') && SEND_OK.test(A.wa || '') && A.tel !== A.wa;
+  var CALL = enabled && SEND_OK.test(A.call || '') && A.call !== A.tel && A.call !== A.wa && !!SITE.phone;
   var banner = document.getElementById('consent'), openBtn = document.getElementById('consent-open');
   var diag = window.__wyDiag = window.__wyDiag || [];
   function note(type, extra){ var d = {type: type, t: Date.now()}; for(var k in extra) d[k] = extra[k]; diag.push(d); }
@@ -316,15 +317,32 @@
     if(loaded) return; loaded = true;
     gtag('js', new Date());
     gtag('config', A.id);
+    if(CALL) gtag('config', A.call, {phone_conversion_number: String(SITE.phone), phone_conversion_callback: callNumber});
     var s = document.createElement('script');
     s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(A.id);
     s.onerror = function(){ failed = true; note('tag_blocked'); };
     document.head.appendChild(s);
   }
+  function callNumber(formatted, mobile){
+    if(!granted) return;
+    var shown = String(formatted || '').trim(), d = String(mobile || '').replace(/\D/g, ''), dial;
+    if(/^\+/.test(shown)) dial = '+' + shown.replace(/\D/g, '');
+    else if(d.length === 11 && d.indexOf('48') === 0) dial = '+' + d;
+    else if(d.length === 9) dial = '+48' + d;
+    else dial = d;
+    if(!shown || !/^\+?\d{6,15}$/.test(dial)) return;
+    [].forEach.call(document.querySelectorAll('a.js-call'), function(a){
+      if(a.closest('footer')) return;
+      a.setAttribute('href', 'tel:' + dial);
+      if(a.classList.contains('js-phone')) a.textContent = shown;
+      [].forEach.call(a.querySelectorAll('.js-phone'), function(el){ el.textContent = shown; });
+    });
+    note('call_number', {swapped: true});
+  }
   function clearAdCookies(){
     var host = location.hostname, base = host.replace(/^www\./, '');
     document.cookie.split(';').forEach(function(c){
-      var n = c.split('=')[0].trim(); if(!/^(_gcl_|_gac_|FPGCL)/.test(n)) return;
+      var n = c.split('=')[0].trim(); if(!/^(_gcl_|_gac_|FPGCL|gwcc)/.test(n)) return;
       ['', '; domain=' + host, '; domain=.' + base].forEach(function(d){ document.cookie = n + '=; Max-Age=0; path=/' + d; });
     });
   }
