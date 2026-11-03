@@ -258,7 +258,7 @@ for d, _, fs in os.walk(OUT_D):
             if 'application/ld+json' in m.group(1): continue
             hashes.add("'sha256-" + base64.b64encode(hashlib.sha256(m.group(2).encode('utf-8')).digest()).decode() + "'")
 # Google Ads hosts per developers.google.com/tag-platform/security/guides/csp (loaded only after consent, see consent.js)
-G_SCRIPT = "https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com"
+G_SCRIPT = "https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com https://www.gstatic.com/wcm/"
 G_IMG = "https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.pl"
 G_CONNECT = G_IMG + " https://ad.doubleclick.net"
 G_FRAME = "https://www.googletagmanager.com"

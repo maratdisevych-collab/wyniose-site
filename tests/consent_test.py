@@ -110,7 +110,8 @@ async def goto(pg, url):
 
 async def click(pg, sel, wait=150):
     """Real click (Playwright refuses if something covers the element). True if the CTA click reached the page."""
-    await pg.evaluate(f"document.querySelector({json.dumps(sel)}).scrollIntoView({{block:'center'}})")
+    # CSS smooth scrolling races with the virtual clock and can move the CTA during a real click.
+    await pg.evaluate(f"document.querySelector({json.dumps(sel)}).scrollIntoView({{block:'center',behavior:'instant'}})")
     n = await pg.evaluate('window.__hits.length')
     try: await pg.click(sel, timeout=4000)
     except Exception: return False
